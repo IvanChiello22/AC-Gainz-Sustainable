@@ -20,22 +20,24 @@ import java.util.regex.Pattern;
 
 @WebServlet(value = "/login")
 public class LoginServlet extends HttpServlet {
-    public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
+
+    private static final Pattern PASSWORD_REGEX = Pattern.compile("^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[^\\w\\s]).{8,}$");
+    private static final Pattern EMAIL_REGEX = Pattern.compile("^[\\w.%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,8}$");
+
+    public void doGet(final HttpServletRequest request,final HttpServletResponse response) throws IOException, ServletException {
         super.doGet(request, response);
     }
 
-    public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
+    public void doPost(final HttpServletRequest request,final HttpServletResponse response) throws IOException, ServletException {
         // Prendo i parametri dal form
-        String email = request.getParameter("email");
-        String password = request.getParameter("password");
+        final String email = request.getParameter("email");
+        final String password = request.getParameter("password");
 
 
-        UtenteDAO utenteDAO = new UtenteDAO();
+        final UtenteDAO utenteDAO = new UtenteDAO();
 
         //controlliamo che il pattern dell'email inserita sia corretto
-        String emailPattern = "^[\\w.%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,8}$";
-        Pattern emailRegex = Pattern.compile(emailPattern);
-        Matcher emailMatcher = emailRegex.matcher(email);
+        final Matcher emailMatcher = EMAIL_REGEX.matcher(email);
 
 
         //nel caso il pattern dell'email non fosse rispettato
@@ -48,9 +50,7 @@ public class LoginServlet extends HttpServlet {
 
 
         //Controlliamo che il pattern della password inserita sia corretto
-        String passwordPattern = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[^\\w\\s]).{8,}$";
-        Pattern passwordRegex = Pattern.compile(passwordPattern);
-        Matcher passwordMatcher = passwordRegex.matcher(password);
+        final Matcher passwordMatcher = PASSWORD_REGEX.matcher(password);
 
         //nel caso il pattern della password non fosse rispettato
         if (!passwordMatcher.matches()) {
@@ -72,7 +72,7 @@ public class LoginServlet extends HttpServlet {
         Utente x = null;
         try {
             x = utenteDAO.doRetrieveByEmailAndPassword(email, password);
-        } catch (SQLException e) {
+        } catch (final SQLException e) {
             throw new RuntimeException(e);
         }
 
@@ -88,7 +88,7 @@ public class LoginServlet extends HttpServlet {
         // Se arrivo qui, ho messo i dati giusti nel form
 
         // Mi prendo la sessione
-        HttpSession session = request.getSession();
+        final HttpSession session = request.getSession();
         session.setMaxInactiveInterval(1800); // Set session timeout
 
         // Inserisco nella sessione l'oggetto contenente l'utente vero e proprio
@@ -97,7 +97,7 @@ public class LoginServlet extends HttpServlet {
 
 
         //A questo punto controllo se l'utente ha un carrello nel DB altrimenti ne creo uno nuovo
-        CarrelloDAO carrelloDAO = new CarrelloDAO();
+        final CarrelloDAO carrelloDAO = new CarrelloDAO();
         List<Carrello> dbCart = carrelloDAO.doRetrieveCartItemsByUser(x.getEmail());
         if (dbCart == null) dbCart = new ArrayList<>();
 
@@ -106,9 +106,9 @@ public class LoginServlet extends HttpServlet {
         if (sessionCart == null) sessionCart = new ArrayList<>();
 
         //Se è presente il carrello nel DB e anche nella sessione li unisco(sommo le quantità eventuali prodotti uguali)
-        for (Carrello sessionCartEntry : sessionCart) {
+        for (final Carrello sessionCartEntry : sessionCart) {
             boolean found = false;
-            for (Carrello dbCartEntry : dbCart) {
+            for (final Carrello dbCartEntry : dbCart) {
                 if (dbCartEntry.getIdVariante() == sessionCartEntry.getIdVariante()) {
                     dbCartEntry.setQuantita(dbCartEntry.getQuantita() + sessionCartEntry.getQuantita());
                     dbCartEntry.setPrezzo(dbCartEntry.getPrezzo() + sessionCartEntry.getPrezzo());

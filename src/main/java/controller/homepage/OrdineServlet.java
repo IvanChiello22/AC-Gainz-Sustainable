@@ -16,33 +16,33 @@ import java.util.List;
 
 public class OrdineServlet extends HttpServlet {
     @Override
-    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+    protected void doGet(final HttpServletRequest req,final HttpServletResponse resp) throws ServletException, IOException {
         super.doGet(req, resp);
     }
 
     @Override
-    protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        HttpSession session = req.getSession(false);
+    protected void doPost(final HttpServletRequest req,final HttpServletResponse resp) throws ServletException, IOException {
+        final HttpSession session = req.getSession(false);
         //prendiamo il carrello dalla sessione
-        List<Carrello> cart = (List<Carrello>) session.getAttribute("cart");
+        final List<Carrello> cart = (List<Carrello>) session.getAttribute("cart");
 
         if (!cart.isEmpty() && session.getAttribute("Utente") != null){
-            Utente x = (Utente) session.getAttribute("Utente");
+            final Utente x = (Utente) session.getAttribute("Utente");
 
             //Creiamo un nuovo ordine e lo inseriamo nel DB
-            Ordine ordine = new Ordine();
+            final Ordine ordine = new Ordine();
             ordine.setEmailUtente(x.getEmail());
-            OrdineDao ordineDao = new OrdineDao();
+            final OrdineDao ordineDao = new OrdineDao();
             ordineDao.doSave(ordine);
 
 
             //prendiamo l'id dell'ultimo ordine del DB
-            int id_order = ordineDao.getLastInsertedId();
+            final int id_order = ordineDao.getLastInsertedId();
 
             //creaiamo una lista dei prodotti presenti nell'ordine
-            List<DettaglioOrdine> dettaglioOrdine = new ArrayList<>();
-            for (Carrello cartItem: cart){
-                DettaglioOrdine dettaglioOrdineItem = new DettaglioOrdine();
+            final List<DettaglioOrdine> dettaglioOrdine = new ArrayList<>();
+            for (final Carrello cartItem: cart){
+                final DettaglioOrdine dettaglioOrdineItem = new DettaglioOrdine();
                 dettaglioOrdineItem.setIdOrdine(id_order);
                 dettaglioOrdineItem.setIdVariante(cartItem.getIdVariante());
                 dettaglioOrdineItem.setIdProdotto(cartItem.getIdProdotto());
@@ -52,17 +52,17 @@ public class OrdineServlet extends HttpServlet {
 
             //eliminiamo il carrello visto che abbiamo effettuato l'ordine
             session.removeAttribute("cart");
-            CarrelloDAO carrelloDAO = new CarrelloDAO();
+            final CarrelloDAO carrelloDAO = new CarrelloDAO();
             carrelloDAO.doRemoveCartByUser(x.getEmail());
 
             //salviamo i dettagli dell'ordine all'interno del DB
-            DettaglioOrdineDAO dettaglioOrdineDAO = new DettaglioOrdineDAO();
-            for (DettaglioOrdine dettaglioOrdineItem : dettaglioOrdine)
+            final DettaglioOrdineDAO dettaglioOrdineDAO = new DettaglioOrdineDAO();
+            for (final DettaglioOrdine dettaglioOrdineItem : dettaglioOrdine)
                 dettaglioOrdineDAO.doSave(dettaglioOrdineItem);
 
 
             //prendiamo l'ordine che abbiamo effettuato e mostriamo il resoconto
-            Ordine ordine1 = ordineDao.doRetrieveById(ordineDao.getLastInsertedId());
+            final Ordine ordine1 = ordineDao.doRetrieveById(ordineDao.getLastInsertedId());
             List<DettaglioOrdine> dettaglioOrdini1 = new ArrayList<>();
             dettaglioOrdini1 = dettaglioOrdineDAO.doRetrieveById(ordine1.getIdOrdine());
             req.setAttribute("order", ordine1);

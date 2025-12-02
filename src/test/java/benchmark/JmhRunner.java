@@ -5,8 +5,6 @@ import org.openjdk.jmh.runner.RunnerException;
 import org.openjdk.jmh.runner.options.Options;
 import org.openjdk.jmh.runner.options.OptionsBuilder;
 
-import java.util.Currency;
-import java.util.Date;
 
 public class JmhRunner {
 

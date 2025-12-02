@@ -18,15 +18,15 @@ import java.util.List;
 @WebServlet(value = "/cartServlet")
 public class CarrelloServlet extends HttpServlet {
     @Override
-    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        String action = req.getParameter("action");
+    protected void doGet(final HttpServletRequest req,final HttpServletResponse resp) throws ServletException, IOException {
+        final String action = req.getParameter("action");
 
 
-        ProdottoDAO prodottoDAO = new ProdottoDAO();
-        HttpSession session = req.getSession();
+        final ProdottoDAO prodottoDAO = new ProdottoDAO();
+        final HttpSession session = req.getSession();
         synchronized (session) { //uso di synchronized per race conditions su session tramite ajax
             resp.setContentType("application/json");
-            PrintWriter out = resp.getWriter();
+            final PrintWriter out = resp.getWriter();
 
 
             switch (action) {
@@ -41,13 +41,13 @@ public class CarrelloServlet extends HttpServlet {
 
 
     //metodo che permette di visualizzare i prodotti all'interno del carrello
-    private void handleShowAction(HttpSession session, ProdottoDAO prodottoDAO, PrintWriter out) throws IOException {
-        List<Carrello> cartItems = (List<Carrello>) session.getAttribute("cart");
+    private void handleShowAction(final HttpSession session,final ProdottoDAO prodottoDAO,final PrintWriter out) throws IOException {
+        final List<Carrello> cartItems = (List<Carrello>) session.getAttribute("cart");
 
         if (cartItems != null && !cartItems.isEmpty()) {
             writeCartItemsToResponse(cartItems, prodottoDAO, out);
         } else {
-            JSONArray jsonArray = new JSONArray();
+            final JSONArray jsonArray = new JSONArray();
             out.println(jsonArray);
             out.flush();
             out.close();
@@ -56,22 +56,22 @@ public class CarrelloServlet extends HttpServlet {
 
 
     //metodo che viene usato quando viene modificata la quantita di un prodotto nel carrello
-    public void handleQuantityVariantAction(HttpServletRequest request,  HttpSession session, ProdottoDAO prodottoDAO, PrintWriter out) throws IOException {
+    public void handleQuantityVariantAction(final HttpServletRequest request,final HttpSession session,final ProdottoDAO prodottoDAO,final PrintWriter out) throws IOException {
         //prende i dati del prodotto nel carrello dalla request
-        String idProdotto = request.getParameter("id");
-        String gusto = request.getParameter("gusto");
-        int pesoConfezione = Integer.parseInt(request.getParameter("pesoConfezione"));
+        final String idProdotto = request.getParameter("id");
+        final String gusto = request.getParameter("gusto");
+        final int pesoConfezione = Integer.parseInt(request.getParameter("pesoConfezione"));
 
-        Prodotto p = prodottoDAO.doRetrieveById(idProdotto);
+        final Prodotto p = prodottoDAO.doRetrieveById(idProdotto);
         if (p != null){
-            VarianteDAO varianteDAO = new VarianteDAO();
-            Variante v = varianteDAO.doRetrieveVariantByFlavourAndWeight(p.getIdProdotto(), gusto, pesoConfezione).get(0);
-            List<Carrello> cartItems = (List<Carrello>) session.getAttribute("cart");
+            final VarianteDAO varianteDAO = new VarianteDAO();
+            final Variante v = varianteDAO.doRetrieveVariantByFlavourAndWeight(p.getIdProdotto(), gusto, pesoConfezione).get(0);
+            final List<Carrello> cartItems = (List<Carrello>) session.getAttribute("cart");
             if (v != null && cartItems != null){
-                String quantity = request.getParameter("quantity");
+                final String quantity = request.getParameter("quantity");
                 //controlla che la quantita passata sia corretta e che sia inferiore alla quantita presente nel DB
                 if (quantity != null && !quantity.isBlank() && Integer.parseInt(quantity) < v.getQuantita()){
-                    int q = Integer.parseInt(quantity);
+                    final int q = Integer.parseInt(quantity);
                     //nel caso in cui non si rimuova il prodotto
                     if (q < 0) {
                         handleRemoveVariantAction(request, session, prodottoDAO, out);
@@ -87,7 +87,7 @@ public class CarrelloServlet extends HttpServlet {
                         price *= q;
 
                         //aggiorna il prodotto nel carrello con la nuova quantita e il nuovo prezzo
-                        for (Carrello c: cartItems){
+                        for (final Carrello c: cartItems){
                             if (c.getIdVariante() == v.getIdVariante()){
                                 c.setQuantita(q);
                                 c.setPrezzo(price);
@@ -107,23 +107,23 @@ public class CarrelloServlet extends HttpServlet {
 
 
     //metodo che viene usato per rimuovere un prodotto dal carrello
-    public void handleRemoveVariantAction(HttpServletRequest request, HttpSession session, ProdottoDAO prodottoDAO, PrintWriter out) throws IOException {
+    public void handleRemoveVariantAction(final HttpServletRequest request,final HttpSession session,final ProdottoDAO prodottoDAO,final PrintWriter out) throws IOException {
         //prendo i dati del prodotto nel carrello passati dalla request
-        String idToRemove = request.getParameter("id");
-        String gusto = request.getParameter("gusto");
-        int pesoConfezione = Integer.parseInt(request.getParameter("pesoConfezione"));
+        final String idToRemove = request.getParameter("id");
+        final String gusto = request.getParameter("gusto");
+        final int pesoConfezione = Integer.parseInt(request.getParameter("pesoConfezione"));
 
-        Prodotto p = prodottoDAO.doRetrieveById(idToRemove);
+        final Prodotto p = prodottoDAO.doRetrieveById(idToRemove);
 
         if (p != null){
-            VarianteDAO varianteDAO = new VarianteDAO();
-            Variante v = varianteDAO.doRetrieveVariantByFlavourAndWeight(p.getIdProdotto(), gusto, pesoConfezione).get(0);
+            final VarianteDAO varianteDAO = new VarianteDAO();
+            final Variante v = varianteDAO.doRetrieveVariantByFlavourAndWeight(p.getIdProdotto(), gusto, pesoConfezione).get(0);
             if (v != null){
-                List<Carrello> cartItems = (List<Carrello>) session.getAttribute("cart");
+                final List<Carrello> cartItems = (List<Carrello>) session.getAttribute("cart");
 
                 //elimina il prodotto dal carrello
                 if (cartItems != null) {
-                    cartItems.removeIf(item -> item.getIdVariante()  == v.getIdVariante());
+                    cartItems.removeIf((final var item) -> item.getIdVariante()  == v.getIdVariante());
                     session.setAttribute("cart", cartItems);
 
                     writeCartItemsToResponse(cartItems, prodottoDAO, out);
@@ -136,29 +136,29 @@ public class CarrelloServlet extends HttpServlet {
 
 
     //metodo che aggiunge al carrello un nuovo prodotto
-    private void handleAddVariantAction(HttpServletRequest request, HttpSession session, ProdottoDAO prodottoDAO, PrintWriter out) throws IOException {
+    private void handleAddVariantAction(final HttpServletRequest request,final HttpSession session,final ProdottoDAO prodottoDAO,final PrintWriter out) throws IOException {
         //prendo il prodotto
-        String id = request.getParameter("id");
-        Prodotto p = prodottoDAO.doRetrieveById(id);
+        final String id = request.getParameter("id");
+        final Prodotto p = prodottoDAO.doRetrieveById(id);
         if (p != null) {
             int quantity = 1;
 
             //setto la quantita desiderata dall'utente
             if (request.getParameter("quantity") != null) {
-                int x = Integer.parseInt(request.getParameter("quantity"));
+                final int x = Integer.parseInt(request.getParameter("quantity"));
                 if (x > 0) quantity = x;
             }
 
 
             //prendo altri dati relativi al prodotto
-            String gusto = request.getParameter("gusto");
-            String pesoConfezione = request.getParameter("pesoConfezione");
+            final String gusto = request.getParameter("gusto");
+            final String pesoConfezione = request.getParameter("pesoConfezione");
 
 
 
-            VarianteDAO varianteDAO = new VarianteDAO();
+            final VarianteDAO varianteDAO = new VarianteDAO();
 
-            Variante v = varianteDAO.doRetrieveVariantByFlavourAndWeight(id, gusto, Integer.parseInt(pesoConfezione)).get(0);
+            final Variante v = varianteDAO.doRetrieveVariantByFlavourAndWeight(id, gusto, Integer.parseInt(pesoConfezione)).get(0);
 
             List<Carrello> cartItems = (List<Carrello>) session.getAttribute("cart");
             if (cartItems == null) cartItems = new ArrayList<>();
@@ -175,9 +175,9 @@ public class CarrelloServlet extends HttpServlet {
                 //nel caso lo fosse sommo le due quantita e aggiorno ovviamente il prezzo
                 boolean itemExists = false;
                 if (!cartItems.isEmpty()) {
-                    for (Carrello item : cartItems) {
+                    for (final Carrello item : cartItems) {
                         if (item.getIdVariante() == v.getIdVariante()) {
-                            int newQuantity = item.getQuantita() + quantity;
+                            final int newQuantity = item.getQuantita() + quantity;
                             if (newQuantity <= v.getQuantita()) {
                                 item.setQuantita(newQuantity);
                                 item.setPrezzo(item.getPrezzo() + (price * quantity));
@@ -190,7 +190,7 @@ public class CarrelloServlet extends HttpServlet {
 
                 //se il prodotto non è presente nel carrello lo aggiungo
                 if (!itemExists && quantity <= v.getQuantita()) {
-                    Carrello c = new Carrello();
+                    final Carrello c = new Carrello();
                     c.setIdProdotto(id);
                     c.setIdVariante(v.getIdVariante());
                     c.setNomeProdotto(p.getNome());
@@ -214,13 +214,13 @@ public class CarrelloServlet extends HttpServlet {
 
     //metodo che per ogni prodotto nel carrello crea un oggetto JSON e lo inserisce in un JSONArray
     //metodo che crea quindi il carrello effettivo
-    private void writeCartItemsToResponse(List<Carrello> cartItems, ProdottoDAO prodottoDAO, PrintWriter out) throws IOException{
-        JSONArray jsonArray = new JSONArray();
+    private void writeCartItemsToResponse(final List<Carrello> cartItems,final  ProdottoDAO prodottoDAO,final PrintWriter out) throws IOException{
+        final JSONArray jsonArray = new JSONArray();
         float totalPrice = 0;
 
-        for (Carrello item: cartItems){
-            Prodotto p = prodottoDAO.doRetrieveById(item.getIdProdotto());
-            JSONObject jsonObject = new JSONObject();
+        for (final Carrello item: cartItems){
+            final Prodotto p = prodottoDAO.doRetrieveById(item.getIdProdotto());
+            final JSONObject jsonObject = new JSONObject();
             //crea l'oggetto JSON con tutti i valori del prodotto
             jsonObject.put("idProdotto", item.getIdProdotto());
             jsonObject.put("idVariante", item.getIdVariante());
@@ -243,7 +243,7 @@ public class CarrelloServlet extends HttpServlet {
 
         totalPrice = Math.round(totalPrice * 100.0f) / 100.0f;
 
-        JSONObject totalPriceObject = new JSONObject();
+        final JSONObject totalPriceObject = new JSONObject();
         totalPriceObject.put("totalPrice", totalPrice);
         jsonArray.add(totalPriceObject);
 
@@ -254,7 +254,7 @@ public class CarrelloServlet extends HttpServlet {
 
 
     @Override
-    protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+    protected void doPost(final HttpServletRequest req,final HttpServletResponse resp) throws ServletException, IOException {
         doGet(req, resp);
     }
 }

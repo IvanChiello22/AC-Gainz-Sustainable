@@ -24,15 +24,15 @@ import static controller.Filters.GenericFilterServlet.getJsonObject;
 @WebServlet(value = "/searchBar")
 public class SearchBarServlet extends HttpServlet {
     @Override
-    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        String name = req.getParameter("name");
-        HttpSession session = req.getSession();
+    protected void doGet(final HttpServletRequest req,final HttpServletResponse resp) throws ServletException, IOException {
+        final String name = req.getParameter("name");
+        final HttpSession session = req.getSession();
 
         synchronized (session) { //uso di synchronized per race conditions su session tramite ajax
 
             List<Prodotto> products = new ArrayList<>();
-            String categoria = (String) session.getAttribute("categoriaRecovery");
-            ProdottoDAO prodottoDAO = new ProdottoDAO();
+            final String categoria = (String) session.getAttribute("categoriaRecovery");
+            final ProdottoDAO prodottoDAO = new ProdottoDAO();
 
 
             //prendiamo i prodotti in base a name
@@ -42,7 +42,7 @@ public class SearchBarServlet extends HttpServlet {
                 try {
                     products = prodottoDAO.filterProducts("", "", "", "", name);
                     session.setAttribute("searchBarName", name);
-                } catch (SQLException e) {
+                } catch (final SQLException e) {
                     throw new RuntimeException(e);
                 }
             }
@@ -52,7 +52,7 @@ public class SearchBarServlet extends HttpServlet {
                 session.setAttribute("categoria", categoria);
                 try {
                     products = prodottoDAO.filterProducts(categoria, "", "", "", "");
-                } catch (SQLException e) {
+                } catch (final SQLException e) {
                     throw new RuntimeException(e);
                 }
             }
@@ -66,23 +66,23 @@ public class SearchBarServlet extends HttpServlet {
         }
     }
 
-    private void addToJson(List<Prodotto> products, HttpSession session, HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
-        JSONArray jsonArray = new JSONArray();
+    private void addToJson(final List<Prodotto> products,final HttpSession session,final HttpServletRequest request,final HttpServletResponse response) throws IOException, ServletException {
+        final JSONArray jsonArray = new JSONArray();
 
         //prendiamo la lista di prodotti e li insieriamo in un JSONArray
-        for (Prodotto p: products) {
-            JSONObject jsonObject = getJsonObject(p);
+        for (final Prodotto p: products) {
+            final JSONObject jsonObject = getJsonObject(p);
             jsonArray.add(jsonObject);
         }
 
         response.setContentType("application/json");
-        PrintWriter o = response.getWriter();
+        final PrintWriter o = response.getWriter();
         o.println(jsonArray);
         o.flush();
     }
 
     @Override
-    protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+    protected void doPost(final HttpServletRequest req,final HttpServletResponse resp) throws ServletException, IOException {
         doGet(req, resp);
     }
 }

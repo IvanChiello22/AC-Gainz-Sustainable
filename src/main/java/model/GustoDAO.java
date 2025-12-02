@@ -6,85 +6,81 @@ import java.util.List;
 
 public class GustoDAO {
 
-    public Gusto doRetrieveById(int id){
-        Gusto gusto = new Gusto();
-        try (Connection connection = ConPool.getConnection()){
-            PreparedStatement preparedStatement = connection.prepareStatement("SELECT * from gusto where id_gusto = ?");
+    public Gusto doRetrieveById(final int id){
+        final Gusto gusto = new Gusto();
+        try (final Connection connection = ConPool.getConnection()){
+            final PreparedStatement preparedStatement = connection.prepareStatement("SELECT g.id_gusto, g.nomeGusto from gusto g where g.id_gusto = ?");
             preparedStatement.setInt(1, id );
-            ResultSet resultSet = preparedStatement.executeQuery();
+            final ResultSet resultSet = preparedStatement.executeQuery();
 
             while (resultSet.next()){
                 gusto.setIdGusto(resultSet.getInt("id_gusto"));
                 gusto.setNome(resultSet.getString("nomeGusto"));
             }
 
-        }catch (SQLException e){
+        }catch (final SQLException e){
             throw new RuntimeException(e);
         }
-
-
         return gusto;
     }
 
 
-    public Gusto doRetrieveByIdVariante(int id) {
+    public Gusto doRetrieveByIdVariante(final int id) {
         Gusto gusto = null;
-        try (Connection connection = ConPool.getConnection()) {
-            PreparedStatement preparedStatement = connection.prepareStatement("SELECT gusto.id_gusto, gusto.nomeGusto FROM gusto JOIN variante ON gusto.id_gusto = variante.id_gusto WHERE variante.id_variante = ?");
+        try (final Connection connection = ConPool.getConnection()) {
+            final PreparedStatement preparedStatement = connection.prepareStatement("SELECT g.id_gusto, g.nomeGusto FROM gusto g JOIN variante ON g.id_gusto = variante.id_gusto WHERE variante.id_variante = ?");
             preparedStatement.setInt(1, id);
-            ResultSet resultSet = preparedStatement.executeQuery();
+            final ResultSet resultSet = preparedStatement.executeQuery();
 
             if (resultSet.next()) {
                 gusto = new Gusto();
                 gusto.setIdGusto(resultSet.getInt("id_gusto"));
-                gusto.setNome(resultSet.getString("nome"));
+                gusto.setNome(resultSet.getString("nomeGusto"));
             }
-        } catch (SQLException e) {
+        } catch (final SQLException e) {
             throw new RuntimeException(e);
         }
         return gusto;
     }
 
     public List<Gusto> doRetrieveAll() {
-        List<Gusto> gusti = new ArrayList<>();
-        try (Connection connection = ConPool.getConnection()){
-            PreparedStatement preparedStatement = connection.prepareStatement("select * from gusto");
-            ResultSet resultSet = preparedStatement.executeQuery();
+        final List<Gusto> gusti = new ArrayList<>();
+        try (final Connection connection = ConPool.getConnection()){
+            final PreparedStatement preparedStatement = connection.prepareStatement("select g.id_gusto, g.nomeGusto from gusto g");
+            final ResultSet resultSet = preparedStatement.executeQuery();
 
             while (resultSet.next()){
-                Gusto gusto = new Gusto();
+                final Gusto gusto = new Gusto();
                 gusto.setIdGusto(resultSet.getInt("id_gusto"));
                 gusto.setNome(resultSet.getString("nomeGusto"));
                 gusti.add(gusto);
             }
 
-        }catch (SQLException e){
+        }catch (final SQLException e){
             throw new RuntimeException(e);
         }
-
-
 
         return gusti;
     }
 
 
-    public void updateGusto(Gusto g, int idGusto){
-        try (Connection connection = ConPool.getConnection()){
-            PreparedStatement preparedStatement = connection.prepareStatement("update gusto set id_gusto = ?, nomeGusto = ? where id_gusto = ?");
+    public void updateGusto(final Gusto g,final int idGusto){
+        try (final Connection connection = ConPool.getConnection()){
+            final PreparedStatement preparedStatement = connection.prepareStatement("update gusto set id_gusto = ?, nomeGusto = ? where id_gusto = ?");
             preparedStatement.setInt(1, g.getIdGusto());
             preparedStatement.setString(2, g.getNomeGusto());
             preparedStatement.setInt(3, idGusto);
 
 
-            int rows = preparedStatement.executeUpdate();
-        }catch (SQLException e){
+            final int rows = preparedStatement.executeUpdate();
+        }catch (final SQLException e){
             throw new RuntimeException(e);
         }
     }
 
-    public void doSaveGusto(Gusto g) {
-        StringBuilder stringBuilder = new StringBuilder("INSERT INTO gusto (");
-        List<Object> parameters = new ArrayList<>();
+    public void doSaveGusto(final Gusto g) {
+        final StringBuilder stringBuilder = new StringBuilder("INSERT INTO gusto (");
+        final List<Object> parameters = new ArrayList<>();
 
         boolean first = true;
 
@@ -104,7 +100,8 @@ public class GustoDAO {
         }
 
         stringBuilder.append(") VALUES (");
-        for (int i = 0; i < parameters.size(); i++) {
+        int paramSize = parameters.size();
+        for (int i = 0; i < paramSize; ++i) {
             if (i > 0) {
                 stringBuilder.append(", ");
             }
@@ -112,15 +109,16 @@ public class GustoDAO {
         }
         stringBuilder.append(")");
 
-        String sql = stringBuilder.toString();
+        final String sql = stringBuilder.toString();
 
-        try (Connection conn = ConPool.getConnection();
-              PreparedStatement ps = conn.prepareStatement(sql)) {
-             for (int i = 0; i < parameters.size(); i++) {
+        try (final Connection conn = ConPool.getConnection();
+             final PreparedStatement ps = conn.prepareStatement(sql)) {
+             paramSize = parameters.size();
+             for (int i = 0; i < paramSize; ++i) {
                  ps.setObject(i + 1, parameters.get(i));
              }
              ps.executeUpdate();
-         } catch (SQLException e) {
+         } catch (final SQLException e) {
              e.printStackTrace();
         }
 
@@ -128,15 +126,15 @@ public class GustoDAO {
         System.out.println(parameters); // Per debug
     }
 
-    public void doRemoveGusto(int idGusto){
-        try (Connection connection = ConPool.getConnection()){
-            PreparedStatement preparedStatement = connection.prepareStatement("delete from gusto where id_gusto = ?");
+    public void doRemoveGusto(final int idGusto){
+        try (final Connection connection = ConPool.getConnection()){
+            final PreparedStatement preparedStatement = connection.prepareStatement("delete from gusto where id_gusto = ?");
             preparedStatement.setInt(1, idGusto);
 
-            int rows = preparedStatement.executeUpdate();
+            final int rows = preparedStatement.executeUpdate();
 
 
-        }catch (SQLException e){
+        }catch (final SQLException e){
             throw new RuntimeException(e);
         }
     }

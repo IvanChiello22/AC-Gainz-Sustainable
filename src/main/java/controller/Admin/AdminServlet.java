@@ -13,7 +13,7 @@ import java.io.IOException;
 public class AdminServlet extends HttpServlet {
 
     @Override
-    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+    protected void doGet(final HttpServletRequest req, final HttpServletResponse resp) throws ServletException, IOException {
 
         //prendiamo l'utente dalla sessione e controlliamo che abbia i poteri per accedere all'area admin
         Utente x = null;
@@ -24,7 +24,7 @@ public class AdminServlet extends HttpServlet {
     }
 
     @Override
-    protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+    protected void doPost(final HttpServletRequest req, final HttpServletResponse resp) throws ServletException, IOException {
         doGet(req, resp);
     }
 }

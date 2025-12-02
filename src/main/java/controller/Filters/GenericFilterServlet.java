@@ -21,17 +21,17 @@ import java.util.List;
 @WebServlet("/genericFilter")
 public class GenericFilterServlet extends HttpServlet {
     @Override
-    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+    protected void doGet(final HttpServletRequest req,final HttpServletResponse resp) throws ServletException, IOException {
 
-        HttpSession session = req.getSession();
+        final HttpSession session = req.getSession();
         synchronized (session) { // race condition sulle sessioni possibile dato che si usa ajax
 
         //Viene chiamato il metodo handleNameForm in base a nameForm passato da request
-        String nameForm = req.getParameter("nameForm");
+            final String nameForm = req.getParameter("nameForm");
         if (nameForm != null){
             try {
                 handleNameForm(nameForm, req, resp, session);
-            } catch (SQLException e) {
+            } catch (final SQLException e) {
                 throw new RuntimeException(e);
             }
             return;
@@ -39,24 +39,24 @@ public class GenericFilterServlet extends HttpServlet {
 
 
             //prende dalla sessione e dalla request i parametri per i campi dei vari filtri
-            String category = (String) session.getAttribute("categoria");
+            final String category = (String) session.getAttribute("categoria");
             String nameFilter = "";
             if (session.getAttribute("searchBarName") != null)
                 nameFilter = (String) session.getAttribute("searchBarName");
-            String weightFilter = req.getParameter("weight");
-            String tasteFilter = req.getParameter("taste");
-            String sortingFilter = req.getParameter("sorting");
+            final String weightFilter = req.getParameter("weight");
+            final String tasteFilter = req.getParameter("taste");
+            final String sortingFilter = req.getParameter("sorting");
 
 
 
             List<Prodotto> filteredProducts = new ArrayList<>();
-            ProdottoDAO prodottoDAO = new ProdottoDAO();
+            final ProdottoDAO prodottoDAO = new ProdottoDAO();
 
 
             //metodo che ritorna i prodotti filtrati in base a tutti i filtri
             try {
                 filteredProducts = prodottoDAO.filterProducts(category, sortingFilter, weightFilter, tasteFilter, nameFilter);
-            } catch (SQLException e) {
+            } catch (final SQLException e) {
                 throw new RuntimeException(e);
             }
 
@@ -70,10 +70,10 @@ public class GenericFilterServlet extends HttpServlet {
 
 
     //metodo che in base al NameForm crea una lista di prodotti che rispettano tale NameForm
-    private void handleNameForm(String nameForm, HttpServletRequest request, HttpServletResponse response, HttpSession session) throws ServletException, IOException, SQLException {
+    private void handleNameForm(final String nameForm,final HttpServletRequest request,final HttpServletResponse response,final HttpSession session) throws ServletException, IOException, SQLException {
         List<Prodotto> products = new ArrayList<>();
 
-        ProdottoDAO prodottoDAO = new ProdottoDAO();
+        final ProdottoDAO prodottoDAO = new ProdottoDAO();
 
         if (nameForm.isBlank()){
             products = prodottoDAO.doRetrieveAll();
@@ -90,13 +90,13 @@ public class GenericFilterServlet extends HttpServlet {
 
 
     // Metodo per inviare la risposta JSON al client
-    private void sendJsonResponse(HttpServletResponse resp, List<Prodotto> resultProducts) throws IOException {
+    private void sendJsonResponse(final HttpServletResponse resp,final  List<Prodotto> resultProducts) throws IOException {
         resp.setContentType("application/json");
-        PrintWriter out = resp.getWriter();
-        JSONArray jsonArray = new JSONArray();
+        final PrintWriter out = resp.getWriter();
+        final JSONArray jsonArray = new JSONArray();
 
-        for (Prodotto p : resultProducts) {
-            JSONObject jsonObject = getJsonObject(p);
+        for (final Prodotto p : resultProducts) {
+            final JSONObject jsonObject = getJsonObject(p);
             jsonArray.add(jsonObject);
         }
 
@@ -106,15 +106,15 @@ public class GenericFilterServlet extends HttpServlet {
 
 
     //metodo che serve per creare un oggetto JSON del prodotto scelto
-    public static JSONObject getJsonObject(Prodotto p) {
-        JSONObject jsonObject = new JSONObject();
+    public static JSONObject getJsonObject(final Prodotto p) {
+        final JSONObject jsonObject = new JSONObject();
         jsonObject.put("id", p.getIdProdotto());
         jsonObject.put("nome", p.getNome());
         jsonObject.put("categoria", p.getCategoria());
         jsonObject.put("calorie", p.getCalorie());
         jsonObject.put("immagine", p.getImmagine());
 
-        Variante variante = p.getVarianti().get(0);
+        final Variante variante = p.getVarianti().get(0);
         jsonObject.put("idVariante", variante.getIdVariante());
         if (variante.getSconto() > 0){
             jsonObject.put("sconto", variante.getSconto());
@@ -130,7 +130,7 @@ public class GenericFilterServlet extends HttpServlet {
 
 
     @Override
-    protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+    protected void doPost (final HttpServletRequest req,final HttpServletResponse resp) throws ServletException, IOException {
         doGet(req, resp);
     }
 }

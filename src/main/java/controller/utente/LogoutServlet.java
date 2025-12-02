@@ -19,14 +19,14 @@ import java.util.List;
 public class LogoutServlet extends HttpServlet {
 
     @Override
-    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        HttpSession session = req.getSession();
+    protected void doGet(final HttpServletRequest req,final HttpServletResponse resp) throws ServletException, IOException {
+        final HttpSession session = req.getSession();
         //prendo l'utente corrente
-        Utente x = (Utente) session.getAttribute("Utente");
+        final Utente x = (Utente) session.getAttribute("Utente");
 
         if (x != null){
         // Save cart into DB before logging out
-        CarrelloDAO carrelloDAO = new CarrelloDAO();
+        final CarrelloDAO carrelloDAO = new CarrelloDAO();
         //prendo il carrello corrente
         List<Carrello> cart = (List<Carrello>) session.getAttribute("cart");
 
@@ -37,7 +37,7 @@ public class LogoutServlet extends HttpServlet {
         carrelloDAO.doRemoveCartByUser(x.getEmail());
 
         // Salva il carrello della sessione attuale nel DB
-        for (Carrello c : cart) {
+        for (final Carrello c : cart) {
             c.setEmailUtente(x.getEmail());
             carrelloDAO.doSave(c);
         }
@@ -46,13 +46,13 @@ public class LogoutServlet extends HttpServlet {
         session.removeAttribute("Utente");
         req.getSession().invalidate();
 
-        RequestDispatcher requestDispatcher = req.getRequestDispatcher("index.jsp");
+        final RequestDispatcher requestDispatcher = req.getRequestDispatcher("index.jsp");
         requestDispatcher.forward(req, resp);
         }
     }
 
     @Override
-    protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+    protected void doPost(final HttpServletRequest req,final HttpServletResponse resp) throws ServletException, IOException {
         doGet(req, resp);
     }
 }

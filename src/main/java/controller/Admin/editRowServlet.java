@@ -18,11 +18,11 @@ import java.util.List;
 @MultipartConfig
 public class editRowServlet extends HttpServlet {
     @Override
-    protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+    protected void doPost(final HttpServletRequest req,final HttpServletResponse resp) throws ServletException, IOException {
         //prende il nome della tabella e la primarykey dalla request
-        String tableName = req.getParameter("tableName");
+        final String tableName = req.getParameter("tableName");
         System.out.println("tableName: " + tableName);
-        String primaryKey = req.getParameter("primaryKey");
+        final String primaryKey = req.getParameter("primaryKey");
 
         boolean success = false;
 
@@ -56,8 +56,8 @@ public class editRowServlet extends HttpServlet {
     }
 
     //Controlla se i parametri sono validi
-    private boolean isValid(List<String> params) {
-        for (String param : params) {
+    private boolean isValid(final List<String> params) {
+        for (final String param : params) {
             if (param == null || param.isBlank()) {
                 return false;
             }
@@ -68,27 +68,27 @@ public class editRowServlet extends HttpServlet {
 
     //prende i parametri dalla request,crea un oggetto Utente avente quei parametri e poi tramite il DAO
     //aggiorna i parametri nel database
-    private boolean editUtente(HttpServletRequest req, String primaryKey) {
-        String email = req.getParameter("email");
-        String nome = req.getParameter("nome");
-        String cognome = req.getParameter("cognome");
-        String codiceFiscale = req.getParameter("codiceFiscale");
-        String dataDiNascita = req.getParameter("dataDiNascita");
-        String indirizzo = req.getParameter("indirizzo");
-        String telefono = req.getParameter("telefono");
+    private boolean editUtente(final HttpServletRequest req,final String primaryKey) {
+        final String email = req.getParameter("email");
+        final String nome = req.getParameter("nome");
+        final String cognome = req.getParameter("cognome");
+        final String codiceFiscale = req.getParameter("codiceFiscale");
+        final String dataDiNascita = req.getParameter("dataDiNascita");
+        final String indirizzo = req.getParameter("indirizzo");
+        final String telefono = req.getParameter("telefono");
 
         if (isValid(List.of(email, nome, cognome, codiceFiscale, dataDiNascita, indirizzo, telefono))) {
-            Utente u = new Utente();
+            final Utente u = new Utente();
             u.setEmail(email);
             u.setNome(nome);
             u.setCognome(cognome);
             u.setCodiceFiscale(codiceFiscale);
 
-            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+            final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
             try {
-                Date ddn = dateFormat.parse(dataDiNascita);
+                final Date ddn = dateFormat.parse(dataDiNascita);
                 u.setDataNascita(ddn);
-            } catch (ParseException e) {
+            } catch (final ParseException e) {
                 e.printStackTrace();
                 return false;
             }
@@ -96,7 +96,7 @@ public class editRowServlet extends HttpServlet {
             u.setIndirizzo(indirizzo);
             u.setTelefono(telefono);
 
-            UtenteDAO utenteDAO = new UtenteDAO();
+            final UtenteDAO utenteDAO = new UtenteDAO();
             utenteDAO.doUpdateCustomer(u, primaryKey);
             return true;
         }
@@ -106,19 +106,19 @@ public class editRowServlet extends HttpServlet {
 
     //prende i parametri dalla request,crea un oggetto Prodotto avente quei parametri e poi tramite il DAO
     //aggiorna i parametri nel database
-    private boolean editProdotto(HttpServletRequest req, String primaryKey) {
-        String idProdotto = req.getParameter("idProdotto");
-        String nome = req.getParameter("nome");
-        String descrizione = req.getParameter("descrizione");
-        String categoria = req.getParameter("categoria");
-        String immagine = req.getParameter("immagine");
-        String calorie = req.getParameter("calorie");
-        String carboidrati = req.getParameter("carboidrati");
-        String proteine = req.getParameter("proteine");
-        String grassi = req.getParameter("grassi");
+    private boolean editProdotto(final HttpServletRequest req,final String primaryKey) {
+        final String idProdotto = req.getParameter("idProdotto");
+        final String nome = req.getParameter("nome");
+        final String descrizione = req.getParameter("descrizione");
+        final String categoria = req.getParameter("categoria");
+        final String immagine = req.getParameter("immagine");
+        final String calorie = req.getParameter("calorie");
+        final String carboidrati = req.getParameter("carboidrati");
+        final String proteine = req.getParameter("proteine");
+        final String grassi = req.getParameter("grassi");
 
         if (isValid(List.of(idProdotto, nome, descrizione, categoria, immagine, calorie, carboidrati, proteine, grassi))) {
-            Prodotto p = new Prodotto();
+            final Prodotto p = new Prodotto();
             p.setIdProdotto(idProdotto);
             p.setNome(nome);
             p.setDescrizione(descrizione);
@@ -129,7 +129,7 @@ public class editRowServlet extends HttpServlet {
             p.setProteine(Integer.parseInt(proteine));
             p.setGrassi(Integer.parseInt(grassi));
 
-            ProdottoDAO prodottoDAO = new ProdottoDAO();
+            final ProdottoDAO prodottoDAO = new ProdottoDAO();
             prodottoDAO.updateProduct(p, primaryKey);
             return true;
         }
@@ -139,18 +139,18 @@ public class editRowServlet extends HttpServlet {
 
     //prende i parametri dalla request,crea un oggetto Variante avente quei parametri e poi tramite il DAO
     //aggiorna i parametri nel database
-    private boolean editVariante(HttpServletRequest req, String primaryKey) {
-        String idVariante = req.getParameter("idVariante");
-        String idProdottoVariante = req.getParameter("idProdottoVariante");
-        String idGusto = req.getParameter("idGusto");
-        String idConfezione = req.getParameter("idConfezione");
-        String prezzo = req.getParameter("prezzo");
-        String quantity = req.getParameter("quantity");
-        String sconto = req.getParameter("sconto");
-        String evidenza = req.getParameter("evidenza");
+    private boolean editVariante(final HttpServletRequest req,final String primaryKey) {
+        final String idVariante = req.getParameter("idVariante");
+        final String idProdottoVariante = req.getParameter("idProdottoVariante");
+        final String idGusto = req.getParameter("idGusto");
+        final String idConfezione = req.getParameter("idConfezione");
+        final String prezzo = req.getParameter("prezzo");
+        final String quantity = req.getParameter("quantity");
+        final String sconto = req.getParameter("sconto");
+        final String evidenza = req.getParameter("evidenza");
 
         if (isValid(List.of(idVariante, idProdottoVariante, idGusto, idConfezione, prezzo, quantity, sconto, evidenza))) {
-            Variante v = new Variante();
+            final Variante v = new Variante();
             v.setIdVariante(Integer.parseInt(idVariante));
             v.setIdProdotto(idProdottoVariante);
             v.setIdGusto(Integer.parseInt(idGusto));
@@ -160,7 +160,7 @@ public class editRowServlet extends HttpServlet {
             v.setSconto(Integer.parseInt(sconto));
             v.setEvidenza(Integer.parseInt(evidenza) == 1);
 
-            VarianteDAO varianteDAO = new VarianteDAO();
+            final VarianteDAO varianteDAO = new VarianteDAO();
             varianteDAO.updateVariante(v, Integer.parseInt(primaryKey));
             return true;
         }
@@ -170,21 +170,21 @@ public class editRowServlet extends HttpServlet {
 
     //prende i parametri dalla request,crea un oggetto Ordine avente quei parametri e poi tramite il DAO
     //aggiorna i parametri nel database
-    private boolean editOrdine(HttpServletRequest req, String primaryKey) {
-        String idOrdine = req.getParameter("idOrdine");
-        String emailUtente = req.getParameter("emailUtente");
-        String dataStr = req.getParameter("data");
-        String stato = req.getParameter("stato");
-        String totaleStr = req.getParameter("totale");
+    private boolean editOrdine(final HttpServletRequest req,final String primaryKey) {
+        final String idOrdine = req.getParameter("idOrdine");
+        final String emailUtente = req.getParameter("emailUtente");
+        final String dataStr = req.getParameter("data");
+        final String stato = req.getParameter("stato");
+        final String totaleStr = req.getParameter("totale");
 
 
         // Validate if all parameters are valid
         if (isValid(List.of(idOrdine, emailUtente, dataStr, stato, totaleStr))) {
-            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
-            Date data;
+            final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+            final Date data;
             try {
                 data = dateFormat.parse(dataStr);
-            } catch (ParseException e) {
+            } catch (final ParseException e) {
                 e.printStackTrace();
                 return false;
             }
@@ -192,7 +192,7 @@ public class editRowServlet extends HttpServlet {
             float totale;
             try {
                 totale = Float.parseFloat(totaleStr);
-            } catch (NumberFormatException e) {
+            } catch (final NumberFormatException e) {
                 e.printStackTrace();
                 return false;
             }
@@ -201,10 +201,10 @@ public class editRowServlet extends HttpServlet {
                 return false;
             }
 
-            Ordine ordine = new Ordine();
+            final Ordine ordine = new Ordine();
             try {
                 ordine.setIdOrdine(Integer.parseInt(idOrdine));
-            } catch (NumberFormatException e) {
+            } catch (final NumberFormatException e) {
                 e.printStackTrace();
                 return false;
             }
@@ -214,10 +214,10 @@ public class editRowServlet extends HttpServlet {
             ordine.setTotale(totale);
             ordine.setDataOrdine(data);
 
-            OrdineDao ordineDao = new OrdineDao();
+            final OrdineDao ordineDao = new OrdineDao();
             try {
                 ordineDao.doUpdateOrder(ordine, Integer.parseInt(primaryKey));
-            } catch (NumberFormatException e) {
+            } catch (final NumberFormatException e) {
                 e.printStackTrace();
                 return false;
             }
@@ -228,28 +228,28 @@ public class editRowServlet extends HttpServlet {
 
     //prende i parametri dalla request,crea un oggetto DettaglioOrdine avente quei parametri e poi tramite il DAO
     //aggiorna i parametri nel database
-    private boolean editDettaglioOrdine(HttpServletRequest req, String primaryKey) {
-        String idOrdine = req.getParameter("idOrdine");
-        String idVariante = req.getParameter("idVariante");
-        String idProdotto = req.getParameter("idProdotto");
-        String quantity = req.getParameter("quantity");
+    private boolean editDettaglioOrdine(final HttpServletRequest req,final String primaryKey) {
+        final String idOrdine = req.getParameter("idOrdine");
+        final String idVariante = req.getParameter("idVariante");
+        final String idProdotto = req.getParameter("idProdotto");
+        final String quantity = req.getParameter("quantity");
 
         if (isValid(List.of(idOrdine, idVariante, idProdotto, quantity))) {
-            int q = Integer.parseInt(quantity);
+            final int q = Integer.parseInt(quantity);
             if (q < 0) return false;
 
-            DettaglioOrdine dettaglioOrdine = new DettaglioOrdine();
+            final DettaglioOrdine dettaglioOrdine = new DettaglioOrdine();
             dettaglioOrdine.setIdOrdine(Integer.parseInt(idOrdine));
             dettaglioOrdine.setIdProdotto(idProdotto);
             dettaglioOrdine.setIdVariante(Integer.parseInt(idVariante));
             dettaglioOrdine.setQuantita(q);
 
-            String[] primaryKeys = primaryKey.split(", ");
-            int firstPK = Integer.parseInt(primaryKeys[0]);
-            String secondPK = primaryKeys[1];
-            int thirdPK = Integer.parseInt(primaryKeys[2]);
+            final String[] primaryKeys = primaryKey.split(", ");
+            final int firstPK = Integer.parseInt(primaryKeys[0]);
+            final String secondPK = primaryKeys[1];
+            final int thirdPK = Integer.parseInt(primaryKeys[2]);
 
-            DettaglioOrdineDAO dettaglioOrdineDAO = new DettaglioOrdineDAO();
+            final DettaglioOrdineDAO dettaglioOrdineDAO = new DettaglioOrdineDAO();
             dettaglioOrdineDAO.doUpdateDettaglioOrdine(dettaglioOrdine, firstPK, secondPK, thirdPK);
             return true;
         }
@@ -259,16 +259,16 @@ public class editRowServlet extends HttpServlet {
 
     //prende i parametri dalla request,crea un oggetto Gusto avente quei parametri e poi tramite il DAO
     //aggiorna i parametri nel database
-    private boolean editGusto(HttpServletRequest req, String primaryKey) {
-        String idGusto = req.getParameter("idGusto");
-        String nomeGusto = req.getParameter("nomeGusto");
+    private boolean editGusto(final HttpServletRequest req,final String primaryKey) {
+        final String idGusto = req.getParameter("idGusto");
+        final String nomeGusto = req.getParameter("nomeGusto");
 
         if (isValid(List.of(idGusto, nomeGusto))) {
-            Gusto gusto = new Gusto();
+            final Gusto gusto = new Gusto();
             gusto.setIdGusto(Integer.parseInt(idGusto));
             gusto.setNome(nomeGusto);
 
-            GustoDAO gustoDAO = new GustoDAO();
+            final GustoDAO gustoDAO = new GustoDAO();
             gustoDAO.updateGusto(gusto, Integer.parseInt(primaryKey));
             return true;
         }
@@ -278,16 +278,16 @@ public class editRowServlet extends HttpServlet {
 
     //prende i parametri dalla request,crea un oggetto Confezione avente quei parametri e poi tramite il DAO
     //aggiorna i parametri nel database
-    private boolean editConfezione(HttpServletRequest req, String primaryKey) {
-        String idConfezione = req.getParameter("idConfezione");
-        String pesoConfezione = req.getParameter("pesoConfezione");
+    private boolean editConfezione(final HttpServletRequest req,final String primaryKey) {
+        final String idConfezione = req.getParameter("idConfezione");
+        final String pesoConfezione = req.getParameter("pesoConfezione");
 
         if (isValid(List.of(idConfezione, pesoConfezione)) && Integer.parseInt(pesoConfezione) > 0) {
-            Confezione confezione = new Confezione();
+            final Confezione confezione = new Confezione();
             confezione.setIdConfezione(Integer.parseInt(idConfezione));
             confezione.setPeso(Integer.parseInt(pesoConfezione));
 
-            ConfezioneDAO confezioneDAO = new ConfezioneDAO();
+            final ConfezioneDAO confezioneDAO = new ConfezioneDAO();
             confezioneDAO.doUpdateConfezione(confezione, Integer.parseInt(primaryKey));
             return true;
         }
@@ -295,7 +295,7 @@ public class editRowServlet extends HttpServlet {
     }
 
     @Override
-    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+    protected void doGet(final HttpServletRequest req,final HttpServletResponse resp) throws ServletException, IOException {
         super.doGet(req, resp);
     }
 }

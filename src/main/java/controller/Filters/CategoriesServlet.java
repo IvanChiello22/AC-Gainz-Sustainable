@@ -17,11 +17,11 @@ import java.util.List;
 @WebServlet(value = "/categories")
 public class CategoriesServlet extends HttpServlet {
     @Override
-    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+    protected void doGet(final HttpServletRequest req,final HttpServletResponse resp) throws ServletException, IOException {
         //Prendo la categoria dalla request e prendo la sessione
-        String filter = req.getParameter("category");
-        ProdottoDAO prodottoDAO = new ProdottoDAO();
-        HttpSession session = req.getSession();
+        final String filter = req.getParameter("category");
+        final ProdottoDAO prodottoDAO = new ProdottoDAO();
+        final HttpSession session = req.getSession();
         List<Prodotto> productsByCriteria = new ArrayList<>();
 
         //In base alla categoria prendo,tramite metodo DAO,tutte le tuple che soddisfano tale categoria
@@ -47,12 +47,12 @@ public class CategoriesServlet extends HttpServlet {
         session.setAttribute("filteredProducts", productsByCriteria);
 
 
-        RequestDispatcher requestDispatcher = req.getRequestDispatcher("FilterProducts.jsp");
+        final RequestDispatcher requestDispatcher = req.getRequestDispatcher("FilterProducts.jsp");
         requestDispatcher.forward(req, resp);
     }
 
 
     @Override
-    protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+    protected void doPost(final HttpServletRequest req,final HttpServletResponse resp) throws ServletException, IOException {
         doGet(req, resp);
     }}

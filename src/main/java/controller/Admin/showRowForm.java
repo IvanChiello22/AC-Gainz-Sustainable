@@ -17,13 +17,13 @@ import java.text.SimpleDateFormat;
 public class showRowForm extends HttpServlet {
 
     @Override
-    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+    protected void doGet(final HttpServletRequest req,final HttpServletResponse resp) throws ServletException, IOException {
         // Recupera il nome della tabella e la chiave primaria dai parametri della richiesta
-        String tableName = req.getParameter("tableName");
-        String primaryKey = req.getParameter("primaryKey");
+        final String tableName = req.getParameter("tableName");
+        final String primaryKey = req.getParameter("primaryKey");
 
         // Crea un JSONArray per raccogliere le righe della tabella in formato JSON
-        JSONArray jsonArray = new JSONArray();
+        final JSONArray jsonArray = new JSONArray();
         resp.setContentType("application/json");
 
         System.out.println(tableName + " ShowRowForm");
@@ -43,7 +43,7 @@ public class showRowForm extends HttpServlet {
         }
 
         // Invia il JSON di risposta
-        try (PrintWriter out = resp.getWriter()) {
+        try (final PrintWriter out = resp.getWriter()) {
             out.println(jsonArray.toJSONString());
             out.flush();
         }
@@ -51,20 +51,20 @@ public class showRowForm extends HttpServlet {
 
 
     //Prende la Confezione dal DB tramite la primaryKey e la aggiunge ad un JSONARRAY
-    private void showConfezioneRowTable(String primaryKey, JSONArray jsonArray) {
-        ConfezioneDAO confezioneDAO = new ConfezioneDAO();
-        int idConfezione = Integer.parseInt(primaryKey);
-        Confezione confezione = confezioneDAO.doRetrieveById(idConfezione);
+    private void showConfezioneRowTable(final String primaryKey,final JSONArray jsonArray) {
+        final ConfezioneDAO confezioneDAO = new ConfezioneDAO();
+        final int idConfezione = Integer.parseInt(primaryKey);
+        final Confezione confezione = confezioneDAO.doRetrieveById(idConfezione);
         if (confezione != null) {
             jsonArray.add(confezioneHelper(confezione));
         }
     }
 
     //Prende il gusto dal DB tramite la primaryKey e la aggiunge ad un JSONARRAY
-    private void showGustoRowTable(String primaryKey, JSONArray jsonArray) {
-        GustoDAO gustoDAO = new GustoDAO();
-        int idGusto = Integer.parseInt(primaryKey);
-        Gusto gusto = gustoDAO.doRetrieveById(idGusto);
+    private void showGustoRowTable(final String primaryKey,final JSONArray jsonArray) {
+        final GustoDAO gustoDAO = new GustoDAO();
+        final int idGusto = Integer.parseInt(primaryKey);
+        final Gusto gusto = gustoDAO.doRetrieveById(idGusto);
         if (gusto != null) {
             jsonArray.add(gustoHelper(gusto));
         }
@@ -72,13 +72,13 @@ public class showRowForm extends HttpServlet {
 
 
     //Prende il dettaglio ordine dal DB tramite la primaryKey e la aggiunge ad un JSONARRAY
-    private void showDettaglioOrdineRowTable(String primaryKey, JSONArray jsonArray) {
-        DettaglioOrdineDAO dettaglioOrdineDAO = new DettaglioOrdineDAO();
-        String[] keys = primaryKey.split(", ");
+    private void showDettaglioOrdineRowTable(final String primaryKey,final JSONArray jsonArray) {
+        final DettaglioOrdineDAO dettaglioOrdineDAO = new DettaglioOrdineDAO();
+        final String[] keys = primaryKey.split(", ");
         if (keys.length == 3) {
-            int idOrdine = Integer.parseInt(keys[0]);
-            int idVariante = Integer.parseInt(keys[2]);
-            DettaglioOrdine dettaglioOrdine = dettaglioOrdineDAO.doRetrieveByIdOrderAndIdVariant(idOrdine, idVariante);
+            final int idOrdine = Integer.parseInt(keys[0]);
+            final int idVariante = Integer.parseInt(keys[2]);
+            final DettaglioOrdine dettaglioOrdine = dettaglioOrdineDAO.doRetrieveByIdOrderAndIdVariant(idOrdine, idVariante);
             if (dettaglioOrdine != null) {
                 jsonArray.add(dettaglioOrdineHelper(dettaglioOrdine));
             }
@@ -88,9 +88,9 @@ public class showRowForm extends HttpServlet {
 
     //Prende l'ordine dal DB tramite la primaryKey e la aggiunge ad un JSONARRAY
 
-    private void showOrdineRowTable(String primaryKey, JSONArray jsonArray) {
-        OrdineDao ordineDao = new OrdineDao();
-        Ordine ordine = ordineDao.doRetrieveById(Integer.parseInt(primaryKey));
+    private void showOrdineRowTable(final String primaryKey,final JSONArray jsonArray) {
+        final OrdineDao ordineDao = new OrdineDao();
+        final Ordine ordine = ordineDao.doRetrieveById(Integer.parseInt(primaryKey));
         if (ordine != null) {
             System.out.println(ordine.getIdOrdine() + " OOOOKKK");
             jsonArray.add(jsonOrdineHelper(ordine));
@@ -99,9 +99,9 @@ public class showRowForm extends HttpServlet {
 
 
     //Prende la variante dal DB tramite la primaryKey e la aggiunge ad un JSONARRAY
-    private void showVarianteRowTable(String primaryKey, JSONArray jsonArray) {
-        VarianteDAO varianteDAO = new VarianteDAO();
-        Variante variante = varianteDAO.doRetrieveVarianteByIdVariante(Integer.parseInt(primaryKey));
+    private void showVarianteRowTable(final String primaryKey,final JSONArray jsonArray) {
+        final VarianteDAO varianteDAO = new VarianteDAO();
+        final Variante variante = varianteDAO.doRetrieveVarianteByIdVariante(Integer.parseInt(primaryKey));
         if (variante != null) {
             jsonArray.add(jsonVarianteHelper(variante));
         }
@@ -110,9 +110,9 @@ public class showRowForm extends HttpServlet {
 
     //Prende il prodotto dal DB tramite la primaryKey e la aggiunge ad un JSONARRAY
 
-    private void showProdottoRowTable(String primaryKey, JSONArray jsonArray) {
-        ProdottoDAO prodottoDAO = new ProdottoDAO();
-        Prodotto prodotto = prodottoDAO.doRetrieveById(primaryKey);
+    private void showProdottoRowTable(final String primaryKey,final JSONArray jsonArray) {
+        final ProdottoDAO prodottoDAO = new ProdottoDAO();
+        final Prodotto prodotto = prodottoDAO.doRetrieveById(primaryKey);
         if (prodotto != null) {
             jsonArray.add(jsonProductHelper(prodotto));
         }
@@ -120,9 +120,9 @@ public class showRowForm extends HttpServlet {
 
 
     //Prende l'utente dal DB tramite la primaryKey e la aggiunge ad un JSONARRAY
-    private void showUtenteRowTable(String primaryKey, JSONArray jsonArray) {
-        UtenteDAO utenteDAO = new UtenteDAO();
-        Utente utente = utenteDAO.doRetrieveByEmail(primaryKey);
+    private void showUtenteRowTable(final String primaryKey,final JSONArray jsonArray) {
+        final UtenteDAO utenteDAO = new UtenteDAO();
+        final Utente utente = utenteDAO.doRetrieveByEmail(primaryKey);
         if (utente != null) {
             jsonArray.add(jsonUtenteHelper(utente));
         }
@@ -130,24 +130,24 @@ public class showRowForm extends HttpServlet {
 
 
     //Crea un oggetto JSON
-    protected static JSONObject confezioneHelper(Confezione confezione) {
-        JSONObject confezioneObject = new JSONObject();
+    protected static JSONObject confezioneHelper(final Confezione confezione) {
+        final JSONObject confezioneObject = new JSONObject();
         confezioneObject.put("idConfezione", confezione.getIdConfezione());
         confezioneObject.put("pesoConfezione", confezione.getPeso());
         return confezioneObject;
     }
 
     //Crea un oggetto JSON
-    protected static JSONObject gustoHelper(Gusto gusto) {
-        JSONObject jsonObject = new JSONObject();
+    protected static JSONObject gustoHelper(final Gusto gusto) {
+        final JSONObject jsonObject = new JSONObject();
         jsonObject.put("idGusto", gusto.getIdGusto());
         jsonObject.put("nomeGusto", gusto.getNomeGusto());
         return jsonObject;
     }
 
     //Crea un oggetto JSON
-    protected static JSONObject dettaglioOrdineHelper(DettaglioOrdine dettaglioOrdine) {
-        JSONObject jsonObject = new JSONObject();
+    protected static JSONObject dettaglioOrdineHelper(final DettaglioOrdine dettaglioOrdine) {
+        final JSONObject jsonObject = new JSONObject();
         jsonObject.put("idOrdine", dettaglioOrdine.getIdOrdine());
         jsonObject.put("idProdotto", dettaglioOrdine.getIdProdotto());
         jsonObject.put("idVariante", dettaglioOrdine.getIdVariante());
@@ -157,8 +157,8 @@ public class showRowForm extends HttpServlet {
     }
 
     //Crea un oggetto JSON
-    protected static JSONObject jsonOrdineHelper(Ordine ordine) {
-        JSONObject ordineObject = new JSONObject();
+    protected static JSONObject jsonOrdineHelper(final Ordine ordine) {
+        final JSONObject ordineObject = new JSONObject();
         ordineObject.put("idOrdine", ordine.getIdOrdine());
         ordineObject.put("emailUtente", ordine.getEmailUtente());
         ordineObject.put("stato", ordine.getStato());
@@ -169,8 +169,8 @@ public class showRowForm extends HttpServlet {
     }
 
     //Crea un oggetto JSON
-    protected static JSONObject jsonVarianteHelper(Variante variante) {
-        JSONObject varianteObject = new JSONObject();
+    protected static JSONObject jsonVarianteHelper(final Variante variante) {
+        final JSONObject varianteObject = new JSONObject();
         varianteObject.put("idVariante", variante.getIdVariante());
         varianteObject.put("idProdottoVariante", variante.getIdProdotto());
         varianteObject.put("idGusto", variante.getIdGusto());
@@ -183,8 +183,8 @@ public class showRowForm extends HttpServlet {
     }
 
     //Crea un oggetto JSON
-    protected static JSONObject jsonProductHelper(Prodotto prodotto) {
-        JSONObject productObject = new JSONObject();
+    protected static JSONObject jsonProductHelper(final Prodotto prodotto) {
+        final JSONObject productObject = new JSONObject();
         productObject.put("idProdotto", prodotto.getIdProdotto());
         productObject.put("nome", prodotto.getNome());
         productObject.put("descrizione", prodotto.getDescrizione());
@@ -198,8 +198,8 @@ public class showRowForm extends HttpServlet {
     }
 
     //Crea un oggetto JSON
-    protected static JSONObject jsonUtenteHelper(Utente utente) {
-        JSONObject userObject = new JSONObject();
+    protected static JSONObject jsonUtenteHelper(final Utente utente) {
+        final JSONObject userObject = new JSONObject();
         userObject.put("email", utente.getEmail());
         userObject.put("password", utente.getPassword());
         userObject.put("nome", utente.getNome());
@@ -212,7 +212,7 @@ public class showRowForm extends HttpServlet {
     }
 
     @Override
-    protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+    protected void doPost(final HttpServletRequest req,final HttpServletResponse resp) throws ServletException, IOException {
         doGet(req, resp);
     }
 }

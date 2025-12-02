@@ -20,17 +20,17 @@ import static controller.Admin.showRowForm.*;
 
 public class deleteRowServlet extends HttpServlet {
     @Override
-    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+    protected void doGet(final HttpServletRequest req, final HttpServletResponse resp) throws ServletException, IOException {
         //prendiamo i dati dalla request
-        String tableName = req.getParameter("tableName");
-        String primaryKey = req.getParameter("primaryKey");
-        Utente utente = (Utente) req.getSession().getAttribute("Utente");
+        final String tableName = req.getParameter("tableName");
+        final String primaryKey = req.getParameter("primaryKey");
+        final Utente utente = (Utente) req.getSession().getAttribute("Utente");
 
         // usato per controllare se admin cancella il suo stesso profilo
         boolean isTheSame = false;
 
         JSONArray jsonArray = null;
-        boolean success = switch (tableName) {
+        final boolean success = switch (tableName) {
             case "utente" -> handleRemoveRowFromUtente(primaryKey);
             case "prodotto" -> handleRemoveRowFromProdotto(primaryKey);
             case "variante" -> handleRemoveRowFromVariante(primaryKey);
@@ -65,7 +65,7 @@ public class deleteRowServlet extends HttpServlet {
     }
 
 
-    private boolean checkIfAdminDeletingSelf(String primaryKey, Utente utente) {
+    private boolean checkIfAdminDeletingSelf(final String primaryKey, final Utente utente) {
         System.out.println("Checking if admin is deleting self");  // Log per debug
         return primaryKey != null && !primaryKey.isBlank() && utente.getEmail().equals(primaryKey);
     }
@@ -73,20 +73,20 @@ public class deleteRowServlet extends HttpServlet {
 
 
 
-    private boolean handleRemoveRowFromConfezione(String primaryKey) {
-        ConfezioneDAO confezioneDAO = new ConfezioneDAO();
+    private boolean handleRemoveRowFromConfezione(final String primaryKey) {
+        final ConfezioneDAO confezioneDAO = new ConfezioneDAO();
         if (isValidPrimaryKey(primaryKey)) {
-            int idConfezione = Integer.parseInt(primaryKey);
+           final int idConfezione = Integer.parseInt(primaryKey);
             confezioneDAO.doRemoveConfezione(idConfezione);
             return true;
         }
         return false;
     }
 
-    private boolean handleRemoveRowFromGusto(String primaryKey) {
+    private boolean handleRemoveRowFromGusto(final String primaryKey) {
         if (isValidPrimaryKey(primaryKey)) {
-            int idGusto = Integer.parseInt(primaryKey);
-            GustoDAO gustoDAO = new GustoDAO();
+            final int idGusto = Integer.parseInt(primaryKey);
+            final GustoDAO gustoDAO = new GustoDAO();
             gustoDAO.doRemoveGusto(idGusto);
             return true;
         }
@@ -94,29 +94,29 @@ public class deleteRowServlet extends HttpServlet {
     }
 
     //metodo che rimuove la tupla dalla tabella dettaglio ordine(presenta 2 chiavi primarie)
-    private boolean handleRemoveRowFromDettaglioOrdine(String primaryKey) {
+    private boolean handleRemoveRowFromDettaglioOrdine(final String primaryKey) {
         if (primaryKey != null && !primaryKey.isBlank()) {
-            String[] primaryKeys = primaryKey.split(", ");
-            DettaglioOrdineDAO dettaglioOrdineDAO = new DettaglioOrdineDAO();
+            final String[] primaryKeys = primaryKey.split(", ");
+            final DettaglioOrdineDAO dettaglioOrdineDAO = new DettaglioOrdineDAO();
             dettaglioOrdineDAO.doRemoveDettaglioOrdine(Integer.parseInt(primaryKeys[0]), Integer.parseInt(primaryKeys[2]));
             return true;
         }
         return false;
     }
 
-    private boolean handleRemoveRowFromOrdine(String primaryKey) {
+    private boolean handleRemoveRowFromOrdine(final String primaryKey) {
         if (isValidPrimaryKey(primaryKey)) {
-            OrdineDao ordineDao = new OrdineDao();
+            final OrdineDao ordineDao = new OrdineDao();
             ordineDao.doDeleteOrder(Integer.parseInt(primaryKey));
             return true;
         }
         return false;
     }
 
-    private boolean handleRemoveRowFromVariante(String primaryKey) {
+    private boolean handleRemoveRowFromVariante(final String primaryKey) {
         if (isValidPrimaryKey(primaryKey)) {
-            VarianteDAO varianteDAO = new VarianteDAO();
-            Variante v = varianteDAO.doRetrieveVarianteByIdVariante(Integer.parseInt(primaryKey));
+            final VarianteDAO varianteDAO = new VarianteDAO();
+            final Variante v = varianteDAO.doRetrieveVarianteByIdVariante(Integer.parseInt(primaryKey));
             if (v != null) {
                 varianteDAO.doRemoveVariante(Integer.parseInt(primaryKey));
             }
@@ -125,10 +125,10 @@ public class deleteRowServlet extends HttpServlet {
         return false;
     }
 
-    private boolean handleRemoveRowFromProdotto(String primaryKey) {
+    private boolean handleRemoveRowFromProdotto(final String primaryKey) {
         if (primaryKey != null && !primaryKey.isBlank()) {
-            ProdottoDAO prodottoDAO = new ProdottoDAO();
-            Prodotto p = prodottoDAO.doRetrieveById(primaryKey);
+            final ProdottoDAO prodottoDAO = new ProdottoDAO();
+            final Prodotto p = prodottoDAO.doRetrieveById(primaryKey);
             if (p != null) {
                 prodottoDAO.removeProductFromIdProdotto(primaryKey);
             }
@@ -137,10 +137,10 @@ public class deleteRowServlet extends HttpServlet {
         return false;
     }
 
-    private boolean handleRemoveRowFromUtente(String primaryKey){
+    private boolean handleRemoveRowFromUtente(final String primaryKey){
         if (primaryKey != null && !primaryKey.isBlank()) {
-            UtenteDAO utenteDAO = new UtenteDAO();
-            Utente u = utenteDAO.doRetrieveByEmail(primaryKey);
+            final UtenteDAO utenteDAO = new UtenteDAO();
+            final Utente u = utenteDAO.doRetrieveByEmail(primaryKey);
             if (u != null) {
                 utenteDAO.doRemoveUserByEmail(u.getEmail());
                 return true;
@@ -150,7 +150,7 @@ public class deleteRowServlet extends HttpServlet {
     }
 
     //metodo che in base a tableName prende tutte le tuple e le inserisce in un JSONArray
-    private JSONArray getJsonArrayForTable(String tableName) {
+    private JSONArray getJsonArrayForTable(final String tableName) {
         return switch (tableName) {
             case "utente" -> getAllUtentiJsonArray(new UtenteDAO());
             case "prodotto" -> getAllProdottiJsonArray(new ProdottoDAO());
@@ -163,84 +163,84 @@ public class deleteRowServlet extends HttpServlet {
         };
     }
 
-    private static JSONArray getAllUtentiJsonArray(UtenteDAO utenteDAO) {
-        List<Utente> utenti = utenteDAO.doRetrieveAll();
-        JSONArray jsonArray = new JSONArray();
-        for (Utente utente : utenti) {
+    private static JSONArray getAllUtentiJsonArray(final UtenteDAO utenteDAO) {
+        final List<Utente> utenti = utenteDAO.doRetrieveAll();
+        final JSONArray jsonArray = new JSONArray();
+        for (final Utente utente : utenti) {
             jsonArray.add(jsonHelperHere(utente));
         }
         return jsonArray;
     }
 
-    private static JSONArray getAllProdottiJsonArray(ProdottoDAO prodottoDAO) {
-        List<Prodotto> prodotti = prodottoDAO.doRetrieveAll();
-        JSONArray jsonArray = new JSONArray();
-        for (Prodotto prodotto : prodotti) {
+    private static JSONArray getAllProdottiJsonArray(final ProdottoDAO prodottoDAO) {
+        final List<Prodotto> prodotti = prodottoDAO.doRetrieveAll();
+        final JSONArray jsonArray = new JSONArray();
+        for (final Prodotto prodotto : prodotti) {
             jsonArray.add(jsonProductHelper(prodotto));
         }
         return jsonArray;
     }
 
-    private static JSONArray getAllVariantiJsonArray(VarianteDAO varianteDAO) {
-        List<Variante> varianti = varianteDAO.doRetrieveAll();
-        JSONArray jsonArray = new JSONArray();
-        for (Variante variante : varianti) {
+    private static JSONArray getAllVariantiJsonArray(final VarianteDAO varianteDAO) {
+        final List<Variante> varianti = varianteDAO.doRetrieveAll();
+        final JSONArray jsonArray = new JSONArray();
+        for (final Variante variante : varianti) {
             jsonArray.add(jsonVarianteHelper(variante));
         }
         return jsonArray;
     }
 
-    private static JSONArray getAllOrdiniJsonArray(OrdineDao ordineDao) {
-        List<Ordine> ordini = ordineDao.doRetrieveAll();
-        JSONArray jsonArray = new JSONArray();
-        for (Ordine ordine : ordini) {
+    private static JSONArray getAllOrdiniJsonArray(final OrdineDao ordineDao) {
+        final List<Ordine> ordini = ordineDao.doRetrieveAll();
+        final JSONArray jsonArray = new JSONArray();
+        for (final Ordine ordine : ordini) {
             jsonArray.add(jsonOrdineHelper(ordine));
         }
         return jsonArray;
     }
 
-    private static JSONArray getAllDettagliOrdiniJsonArray(DettaglioOrdineDAO dettaglioOrdineDAO) {
-        List<DettaglioOrdine> dettagliOrdini = dettaglioOrdineDAO.doRetrieveAll();
-        JSONArray jsonArray = new JSONArray();
-        for (DettaglioOrdine dettaglioOrdine : dettagliOrdini) {
+    private static JSONArray getAllDettagliOrdiniJsonArray(final DettaglioOrdineDAO dettaglioOrdineDAO) {
+        final List<DettaglioOrdine> dettagliOrdini = dettaglioOrdineDAO.doRetrieveAll();
+        final JSONArray jsonArray = new JSONArray();
+        for (final DettaglioOrdine dettaglioOrdine : dettagliOrdini) {
             jsonArray.add(dettaglioOrdineHelper(dettaglioOrdine));
         }
         return jsonArray;
     }
 
-    private static JSONArray getAllGustiJsonArray(GustoDAO gustoDAO) {
-        List<Gusto> gusti = gustoDAO.doRetrieveAll();
-        JSONArray jsonArray = new JSONArray();
-        for (Gusto gusto : gusti) {
+    private static JSONArray getAllGustiJsonArray(final GustoDAO gustoDAO) {
+        final List<Gusto> gusti = gustoDAO.doRetrieveAll();
+        final JSONArray jsonArray = new JSONArray();
+        for (final Gusto gusto : gusti) {
             jsonArray.add(gustoHelper(gusto));
         }
         return jsonArray;
     }
 
-    private static JSONArray getAllConfezioniJsonArray(ConfezioneDAO confezioneDAO) {
-        List<Confezione> confezioni = confezioneDAO.doRetrieveAll();
-        JSONArray jsonArray = new JSONArray();
-        for (Confezione confezione : confezioni) {
+    private static JSONArray getAllConfezioniJsonArray(final ConfezioneDAO confezioneDAO) {
+        final List<Confezione> confezioni = confezioneDAO.doRetrieveAll();
+        final JSONArray jsonArray = new JSONArray();
+        for (final Confezione confezione : confezioni) {
             jsonArray.add(confezioneHelper(confezione));
         }
         return jsonArray;
     }
 
-    private static void sendJsonResponse(JSONArray jsonArray, HttpServletResponse response) throws IOException {
+    private static void sendJsonResponse(final JSONArray jsonArray, final HttpServletResponse response) throws IOException {
         response.setContentType("application/json");
-        PrintWriter o = response.getWriter();
+        final PrintWriter o = response.getWriter();
         o.println(jsonArray);
         o.flush();
     }
 
-    private boolean isValidPrimaryKey(String primaryKey) {
+    private boolean isValidPrimaryKey(final String primaryKey) {
         return primaryKey != null && !primaryKey.isBlank() && Integer.parseInt(primaryKey) > 0;
     }
 
 
     //metodo che crea un oggetto JSON dell'utente
-    protected static JSONObject jsonHelperHere(Utente x) {
-        JSONObject userObject = new JSONObject();
+    protected static JSONObject jsonHelperHere(final Utente x) {
+        final JSONObject userObject = new JSONObject();
         userObject.put("email", x.getEmail());
         userObject.put("nome", x.getNome());
         userObject.put("cognome", x.getCognome());
@@ -256,7 +256,7 @@ public class deleteRowServlet extends HttpServlet {
     }
 
     @Override
-    protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+    protected void doPost(final HttpServletRequest req, final HttpServletResponse resp) throws ServletException, IOException {
         doGet(req, resp);
     }
 }

@@ -9,14 +9,14 @@ import java.util.List;
 
 public class ConfezioneDAO {
 
-    public Confezione doRetrieveById(int id) {
-        try (Connection connection = ConPool.getConnection()) {
-            PreparedStatement preparedStatement = connection.prepareStatement("SELECT * from confezione where id_confezione = ?");
+    public Confezione doRetrieveById(final int id) {
+        try (final Connection connection = ConPool.getConnection()) {
+            final PreparedStatement preparedStatement = connection.prepareStatement("SELECT c.id_confezione, c.peso from confezione c where c.id_confezione = ?");
             preparedStatement.setInt(1, id);
-            ResultSet resultSet = preparedStatement.executeQuery();
+            final ResultSet resultSet = preparedStatement.executeQuery();
 
             if (resultSet.next()) {
-                Confezione confezione = new Confezione();
+                final Confezione confezione = new Confezione();
                 confezione.setIdConfezione(resultSet.getInt("id_confezione"));
                 confezione.setPeso(resultSet.getInt("peso"));
                 return confezione;
@@ -24,35 +24,35 @@ public class ConfezioneDAO {
                 return null;
             }
 
-        } catch (SQLException e) {
+        } catch (final SQLException e) {
             throw new RuntimeException(e);
         }
     }
 
     public List<Confezione> doRetrieveAll() {
-        List<Confezione> confezioni = new ArrayList<>();
-        try (Connection connection = ConPool.getConnection()) {
-            PreparedStatement preparedStatement = connection.prepareStatement("select * from confezione");
-            ResultSet resultSet = preparedStatement.executeQuery();
+        final List<Confezione> confezioni = new ArrayList<>();
+        try (final Connection connection = ConPool.getConnection()) {
+            final PreparedStatement preparedStatement = connection.prepareStatement("select c.id_confezione, c.peso from confezione c");
+            final ResultSet resultSet = preparedStatement.executeQuery();
 
             while (resultSet.next()) {
-                Confezione confezione = new Confezione();
+                final Confezione confezione = new Confezione();
                 confezione.setIdConfezione(resultSet.getInt("id_confezione"));
                 confezione.setPeso(resultSet.getInt("peso"));
                 confezioni.add(confezione);
             }
 
-        } catch (SQLException e) {
+        } catch (final SQLException e) {
             throw new RuntimeException(e);
         }
 
         return confezioni;
     }
 
-    public void doSaveConfezione(Confezione confezione) {
-        StringBuilder sql = new StringBuilder("INSERT INTO confezione(");
+    public void doSaveConfezione(final Confezione confezione) {
+        final StringBuilder sql = new StringBuilder("INSERT INTO confezione(");
         boolean first = true;
-        List<Object> params = new ArrayList<>();
+        final List<Object> params = new ArrayList<>();
 
         if (confezione.getIdConfezione() > 0) {
             sql.append("id_confezione");
@@ -70,8 +70,8 @@ public class ConfezioneDAO {
 
 
         sql.append(") VALUES (");
-
-        for (int i = 0; i < params.size(); i++) {
+        int paramSize = params.size();
+        for (int i = 0; i < paramSize; ++i) {
             if (i > 0) {
                 sql.append(", ");
             }
@@ -79,14 +79,15 @@ public class ConfezioneDAO {
         }
         sql.append(")");
 
-        try (Connection connection = ConPool.getConnection()) {
-            PreparedStatement preparedStatement = connection.prepareStatement(sql.toString());
+        try (final Connection connection = ConPool.getConnection()) {
+            final PreparedStatement preparedStatement = connection.prepareStatement(sql.toString());
 
-            for (int i = 0; i < params.size(); i++) {
+            paramSize = params.size();
+            for (int i = 0; i < paramSize; ++i) {
                 preparedStatement.setObject(i + 1, params.get(i));
             }
 
-            int rows = preparedStatement.executeUpdate();
+            final int rows = preparedStatement.executeUpdate();
 
             if (rows > 0) {
                 System.out.println("Inserimento riuscito.");
@@ -94,36 +95,36 @@ public class ConfezioneDAO {
                 System.out.println("Nessuna riga inserita.");
             }
 
-        } catch (SQLException e) {
+        } catch (final SQLException e) {
             throw new RuntimeException(e);
         }
     }
 
-    public void doUpdateConfezione(Confezione confezione, int idConfezione){
-        try (Connection connection = ConPool.getConnection()){
-            PreparedStatement preparedStatement = connection.prepareStatement("update confezione set id_confezione = ?, peso = ? where id_confezione = ?");
+    public void doUpdateConfezione(final Confezione confezione,final int idConfezione){
+        try (final Connection connection = ConPool.getConnection()){
+            final PreparedStatement preparedStatement = connection.prepareStatement("update confezione set id_confezione = ?, peso = ? where id_confezione = ?");
             preparedStatement.setInt(1, confezione.getIdConfezione());
             preparedStatement.setInt(2, confezione.getPeso());
             preparedStatement.setInt(3, idConfezione);
 
 
-            int rows = preparedStatement.executeUpdate();
+            preparedStatement.executeUpdate();
 
-        }catch (SQLException e){
+        }catch (final SQLException e){
             throw new RuntimeException(e);
         }
     }
 
-    public void doRemoveConfezione(int idConfezione){
-        try (Connection connection = ConPool.getConnection()){
-            PreparedStatement preparedStatement = connection.prepareStatement("delete from confezione where id_confezione = ?");
+    public void doRemoveConfezione(final int idConfezione){
+        try (final Connection connection = ConPool.getConnection()){
+            final PreparedStatement preparedStatement = connection.prepareStatement("delete from confezione where id_confezione = ?");
             preparedStatement.setInt(1, idConfezione);
 
 
-            int rows = preparedStatement.executeUpdate();
+            preparedStatement.executeUpdate();
 
 
-        }catch (SQLException e){
+        }catch (final SQLException e){
             throw new RuntimeException(e);
         }
     }

@@ -13,23 +13,23 @@ import java.io.IOException;
 public class AccessControlFilter extends HttpFilter implements Filter {
 
     @Override
-    public void doFilter(ServletRequest req, ServletResponse res, FilterChain chain) throws IOException, ServletException {
+    public void doFilter(final ServletRequest req,final ServletResponse res,final  FilterChain chain) throws IOException, ServletException {
 
-        HttpServletRequest httpServletRequest = (HttpServletRequest) req;
-        HttpServletResponse httpServletResponse = (HttpServletResponse) res;
+        final HttpServletRequest httpServletRequest = (HttpServletRequest) req;
+        final HttpServletResponse httpServletResponse = (HttpServletResponse) res;
 
 
         Utente utente = null;
         utente = (Utente) httpServletRequest.getSession().getAttribute("Utente");
 
         boolean isAdmin = false;
-        boolean isLogged = (utente != null);
+        final boolean isLogged = (utente != null);
         if (isLogged) {
             isAdmin = utente.getPoteri();
         }
         System.out.println(isAdmin);
 
-        String path = httpServletRequest.getServletPath();
+        final String path = httpServletRequest.getServletPath();
         System.out.println(path);
 
         //se non ha fatto l'accesso non puo entrare in areautente

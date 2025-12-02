@@ -18,53 +18,53 @@ import java.util.List;
 public class ProductServlet extends HttpServlet {
 
     @Override
-    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+    protected void doGet(final HttpServletRequest req,final HttpServletResponse resp) throws ServletException, IOException {
         //prendiamo dalla request la primarykey del prodotto cliccato
-        String primaryKey = req.getParameter("primaryKey");
+        final String primaryKey = req.getParameter("primaryKey");
         System.out.println(primaryKey);
         if(primaryKey != null) {
                 //andiamo a prendere tutti i valori del prodotto selezionato
-                ProdottoDAO prodottoDAO = new ProdottoDAO();
-                Prodotto prodotto = prodottoDAO.doRetrieveById(primaryKey);
-                if(prodotto != null) {
-                    ProdottoDAO suggeritiDAO = new ProdottoDAO();
+            final ProdottoDAO prodottoDAO = new ProdottoDAO();
+            final Prodotto prodotto = prodottoDAO.doRetrieveById(primaryKey);
+            if(prodotto != null) {
+                final ProdottoDAO suggeritiDAO = new ProdottoDAO();
 
-                    //prendiamo tutte le sue varianti
-                    VarianteDAO varianteDAO = new VarianteDAO();
-                    List<Variante> varianti = prodotto.getVarianti();
+                //prendiamo tutte le sue varianti
+                final VarianteDAO varianteDAO = new VarianteDAO();
+                final List<Variante> varianti = prodotto.getVarianti();
 
-                    //creiamo una lista di tutti i suoi gusti
-                    List<String> gusti = new ArrayList<>();
-                    for (Variante v: varianti){
-                        if (!gusti.contains(v.getGusto())){
-                            gusti.add(v.getGusto());
-                        }
+                //creiamo una lista di tutti i suoi gusti
+                final List<String> gusti = new ArrayList<>();
+                for (final Variante v: varianti){
+                    if (!gusti.contains(v.getGusto())){
+                        gusti.add(v.getGusto());
                     }
-
-                    //Lista di pesi associati al gusto della variante di costo inferiore
-                    List<Integer> pesi = new ArrayList<>();
-                    List<Variante> variantiCriteria = varianteDAO.doRetrieveVariantByCriteria(prodotto.getIdProdotto(), "flavour", varianti.get(0).getGusto());
-
-                    for (Variante y: variantiCriteria){
-                        if (!pesi.contains(y.getPesoConfezione()))
-                            pesi.add(y.getPesoConfezione());
-                    }
-
-                    req.setAttribute("allTastes", gusti);
-                    req.setAttribute("firstWeights", pesi);
-
-                    //sezione dei suggeriti
-                    String category = prodotto.getCategoria();
-                    List<Prodotto> suggeriti = suggeritiDAO.doRetrieveByCriteria("categoria",category);
-                    req.setAttribute("suggeriti",suggeriti);
-                    req.setAttribute("prodotto",prodotto);
-                    req.getRequestDispatcher("Product.jsp").forward(req,resp);
                 }
+
+                //Lista di pesi associati al gusto della variante di costo inferiore
+                final List<Integer> pesi = new ArrayList<>();
+                final List<Variante> variantiCriteria = varianteDAO.doRetrieveVariantByCriteria(prodotto.getIdProdotto(), "flavour", varianti.get(0).getGusto());
+
+                for (final Variante y: variantiCriteria){
+                    if (!pesi.contains(y.getPesoConfezione()))
+                        pesi.add(y.getPesoConfezione());
+                }
+
+                req.setAttribute("allTastes", gusti);
+                req.setAttribute("firstWeights", pesi);
+
+                //sezione dei suggeriti
+                final String category = prodotto.getCategoria();
+                final List<Prodotto> suggeriti = suggeritiDAO.doRetrieveByCriteria("categoria",category);
+                req.setAttribute("suggeriti",suggeriti);
+                req.setAttribute("prodotto",prodotto);
+                req.getRequestDispatcher("Product.jsp").forward(req,resp);
+            }
         }
     }
 
     @Override
-    protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+    protected void doPost(final HttpServletRequest req,final HttpServletResponse resp) throws ServletException, IOException {
         doGet(req,resp);
     }
 }

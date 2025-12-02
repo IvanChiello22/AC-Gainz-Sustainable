@@ -22,38 +22,38 @@ import java.util.List;
 public class ShowOptions extends HttpServlet {
 
     @Override
-    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        String idVariante = req.getParameter("idVariante");
-        String action = req.getParameter("action");
-        String idProdotto = req.getParameter("idProdotto");
+    protected void doGet(final HttpServletRequest req,final  HttpServletResponse resp) throws ServletException, IOException {
+        final String idVariante = req.getParameter("idVariante");
+        final String action = req.getParameter("action");
+        final String idProdotto = req.getParameter("idProdotto");
         resp.setContentType("application/json");
-        PrintWriter o = resp.getWriter();
-        JSONArray jsonArray = new JSONArray();
+        final PrintWriter o = resp.getWriter();
+        final JSONArray jsonArray = new JSONArray();
 
 
         if (action != null && idVariante != null){
             if (action.equals("showFirst")){ //visualizza inzialmente la variante di costo minore, associando al gusto della variante di costo minore tutti i pesi associati
-                VarianteDAO varianteDAO = new VarianteDAO();
-                Variante v = varianteDAO.doRetrieveVarianteByIdVariante(Integer.parseInt(idVariante));
+                final VarianteDAO varianteDAO = new VarianteDAO();
+                final Variante v = varianteDAO.doRetrieveVarianteByIdVariante(Integer.parseInt(idVariante));
 
                 if (v != null){
-                    ProdottoDAO prodottoDAO = new ProdottoDAO();
-                    Prodotto p = prodottoDAO.doRetrieveById(v.getIdProdotto());
+                    final ProdottoDAO prodottoDAO = new ProdottoDAO();
+                    final Prodotto p = prodottoDAO.doRetrieveById(v.getIdProdotto());
                     if (p != null){
-                        List<Variante> variantiAll = varianteDAO.doRetrieveVariantiByIdProdotto(p.getIdProdotto());
+                        final List<Variante> variantiAll = varianteDAO.doRetrieveVariantiByIdProdotto(p.getIdProdotto());
 
-                        String gusto = v.getGusto(); //gusto della variante attuale di costo minimo
+                        final String gusto = v.getGusto(); //gusto della variante attuale di costo minimo
 
-                        List<Integer> pesi = new ArrayList<>();
+                        final List<Integer> pesi = new ArrayList<>();
 
                         //prendo tutte le varianti del prodotto che sto aggiungendo al carrello che hanno il gusto della variante di costo inferiore
-                        List<Variante> variantiByGusto = varianteDAO.doRetrieveVariantByCriteria(p.getIdProdotto(), "flavour", gusto);
+                        final List<Variante> variantiByGusto = varianteDAO.doRetrieveVariantByCriteria(p.getIdProdotto(), "flavour", gusto);
 
-                        for (Variante x: variantiByGusto){
+                        for (final Variante x: variantiByGusto){
                           pesi.add(x.getPesoConfezione());
                         }
 
-                        JSONObject jsonObject1 = new JSONObject();
+                        final JSONObject jsonObject1 = new JSONObject();
                         jsonObject1.put("nomeProdotto", p.getNome());
                         jsonObject1.put("idProdotto", p.getIdProdotto());
                         jsonObject1.put("cheapestFlavour", v.getGusto());
@@ -62,21 +62,21 @@ public class ShowOptions extends HttpServlet {
                         jsonObject1.put("cheapestDiscount", v.getSconto());
                         jsonArray.add(jsonObject1);
 
-                        List<Integer> alreadySentWeights = new ArrayList<>();
-                        for (Integer z: pesi){
+                        final List<Integer> alreadySentWeights = new ArrayList<>();
+                        for (final Integer z: pesi){
                             if (z != v.getPesoConfezione() && !alreadySentWeights.contains(z)) {
                                 alreadySentWeights.add(z);
-                                JSONObject jsonObject2 = new JSONObject();
+                                final JSONObject jsonObject2 = new JSONObject();
                                 jsonObject2.put("cheapestWeightOptions", z);
                                 jsonArray.add(jsonObject2);
                             }
                         }
 
-                        List<String> alreadySentTastes = new ArrayList<>();
-                        for (Variante y: variantiAll){
+                        final List<String> alreadySentTastes = new ArrayList<>();
+                        for (final Variante y: variantiAll){
                             if (y.getIdVariante() != v.getIdVariante() && !y.getGusto().equals(v.getGusto()) && !alreadySentTastes.contains(y.getGusto())) {
                                 alreadySentTastes.add(y.getGusto());
-                                JSONObject jsonObject3 = new JSONObject();
+                                final JSONObject jsonObject3 = new JSONObject();
                                 jsonObject3.put("gusto", y.getGusto());
                                 jsonArray.add(jsonObject3);
                             }
@@ -90,22 +90,22 @@ public class ShowOptions extends HttpServlet {
         }
         //quando avviene un cambiamento nella select del gusto, restituisce tutti i pesi al gusto associati
         if (action != null && idProdotto != null && action.equals("updateOptions") && req.getParameter("flavour") != null){
-            String flavour = req.getParameter("flavour");
-            ProdottoDAO prodottoDAO = new ProdottoDAO();
-            VarianteDAO varianteDAO = new VarianteDAO();
-            Prodotto p = prodottoDAO.doRetrieveById(idProdotto);
+            final String flavour = req.getParameter("flavour");
+            final ProdottoDAO prodottoDAO = new ProdottoDAO();
+            final VarianteDAO varianteDAO = new VarianteDAO();
+            final Prodotto p = prodottoDAO.doRetrieveById(idProdotto);
 
-            List<Integer> pesi = new ArrayList<>();
-            List<Variante> varianti = varianteDAO.doRetrieveVariantByCriteria(p.getIdProdotto(), "flavour", flavour);
-            for (Variante v: varianti)
+            final List<Integer> pesi = new ArrayList<>();
+            final List<Variante> varianti = varianteDAO.doRetrieveVariantByCriteria(p.getIdProdotto(), "flavour", flavour);
+            for (final Variante v: varianti)
                 pesi.add(v.getPesoConfezione());
 
-            pesi.sort(Comparator.comparingInt(o2 -> o2));
+            pesi.sort(Comparator.comparingInt((final var o2) -> o2));
 
 
-            for (Integer x: pesi) {
+            for (final Integer x: pesi) {
                 System.out.println(x);
-                JSONObject jsonObject = new JSONObject();
+                final JSONObject jsonObject = new JSONObject();
                 jsonObject.put("peso", x);
                 jsonArray.add(jsonObject);
             }
@@ -115,17 +115,17 @@ public class ShowOptions extends HttpServlet {
         }
         //quando seleziono effettivamente un altro peso restituisce il prezzo della combinazione data dal gusto + il peso
         if (action != null && idProdotto != null && req.getParameter("flavour") != null && req.getParameter("weight") != null && action.equals("updatePrice")) {
-            String flavour = req.getParameter("flavour");
-            int weight = Integer.parseInt(req.getParameter("weight"));
-            ProdottoDAO prodottoDAO = new ProdottoDAO();
-            Prodotto x = prodottoDAO.doRetrieveById(idProdotto);
+            final String flavour = req.getParameter("flavour");
+            final int weight = Integer.parseInt(req.getParameter("weight"));
+            final ProdottoDAO prodottoDAO = new ProdottoDAO();
+            final Prodotto x = prodottoDAO.doRetrieveById(idProdotto);
 
             if (x != null) {
-                VarianteDAO varianteDAO = new VarianteDAO();
-                Variante v = varianteDAO.doRetrieveVariantByFlavourAndWeight(idProdotto, flavour, weight).get(0);
+                final VarianteDAO varianteDAO = new VarianteDAO();
+                final Variante v = varianteDAO.doRetrieveVariantByFlavourAndWeight(idProdotto, flavour, weight).get(0);
 
                 /*System.out.println(v.getIdVariante());*/
-                JSONObject jsonResponse = new JSONObject();
+                final JSONObject jsonResponse = new JSONObject();
                 jsonResponse.put("prezzo", v.getPrezzo());
                 jsonResponse.put("sconto", v.getSconto());
 
@@ -136,7 +136,7 @@ public class ShowOptions extends HttpServlet {
     }
 
     @Override
-    protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+    protected void doPost(final HttpServletRequest req,final  HttpServletResponse resp) throws ServletException, IOException {
         doGet(req, resp);
     }
 }

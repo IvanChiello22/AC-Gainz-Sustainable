@@ -9,18 +9,18 @@ import java.util.List;
 
 public class VarianteDAO {
 
-    public List<Variante> doRetrieveVariantiByIdProdotto(String idProdotto){
-        List<Variante> varianti = new ArrayList<>();
+    public List<Variante> doRetrieveVariantiByIdProdotto(final String idProdotto){
+        final List<Variante> varianti = new ArrayList<>();
 
-        try (Connection connection = ConPool.getConnection()){
-            PreparedStatement preparedStatement = connection.prepareStatement("select v.*, g.nomeGusto, c.peso from variante v join gusto g on v.id_gusto = g.id_gusto join confezione c on v.id_confezione = c.id_confezione " +
+        try (final Connection connection = ConPool.getConnection()){
+            final PreparedStatement preparedStatement = connection.prepareStatement("select v.*, g.nomeGusto, c.peso from variante v join gusto g on v.id_gusto = g.id_gusto join confezione c on v.id_confezione = c.id_confezione " +
                     "where id_prodotto_variante = ? order by (v.prezzo * (1 - v.sconto / 100)) asc");
             preparedStatement.setString(1, idProdotto);
 
-            ResultSet resultSet = preparedStatement.executeQuery();
+            final ResultSet resultSet = preparedStatement.executeQuery();
 
             while (resultSet.next()){
-                Variante variante = new Variante();
+                final Variante variante = new Variante();
                 variante.setIdVariante(resultSet.getInt("id_variante"));
                 variante.setIdProdotto(resultSet.getString("id_prodotto_variante"));
                 variante.setIdGusto(resultSet.getInt("id_gusto"));
@@ -36,7 +36,7 @@ public class VarianteDAO {
             }
 
 
-        }catch (SQLException e){
+        }catch (final SQLException e){
             throw new RuntimeException(e);
         }
 
@@ -45,14 +45,14 @@ public class VarianteDAO {
 
 
     public List<Variante> doRetrieveAll(){
-        List<Variante> varianti = new ArrayList<>();
+        final List<Variante> varianti = new ArrayList<>();
 
-        try (Connection connection = ConPool.getConnection()){
-            PreparedStatement preparedStatement = connection.prepareStatement("select * from variante");
+        try (final Connection connection = ConPool.getConnection()){
+            final PreparedStatement preparedStatement = connection.prepareStatement("select v.id_variante, v.id_prodotto_variante, v.id_gusto, v.id_confezione, v.prezzo, v.quantità, v.sconto, v.evidenza from variante v");
 
-            ResultSet resultSet = preparedStatement.executeQuery();
+            final ResultSet resultSet = preparedStatement.executeQuery();
             while (resultSet.next()) {
-                Variante variante = new Variante();
+                final Variante variante = new Variante();
                 variante.setIdVariante(resultSet.getInt("id_variante"));
                 variante.setIdProdotto(resultSet.getString("id_prodotto_variante"));
                 variante.setIdGusto(resultSet.getInt("id_gusto"));
@@ -64,7 +64,7 @@ public class VarianteDAO {
 
                 varianti.add(variante);
             }
-        }catch (SQLException e){
+        }catch (final SQLException e){
             throw new RuntimeException();
         }
 
@@ -74,18 +74,18 @@ public class VarianteDAO {
     }
 
 
-    public List<Variante> doRetrieveVariantByCriteria(String idProdotto, String attribute, String value) {
-        List<Variante> varianti = new ArrayList<>();
+    public List<Variante> doRetrieveVariantByCriteria(final String idProdotto,final String attribute,final String value) {
+        final List<Variante> varianti = new ArrayList<>();
 
-        try (Connection connection = ConPool.getConnection()) {
-            String sql = "select * from variante v join gusto g on v.id_gusto = g.id_gusto join confezione c on v.id_confezione = c.id_confezione where id_prodotto_variante = ?";
+        try (final Connection connection = ConPool.getConnection()) {
+            String sql = "select v.id_variante, v.id_prodotto_variante, v.id_gusto, v.id_confezione, v.prezzo, v.quantità, v.sconto, v.evidenza, g.nomeGusto, c.peso from variante v join gusto g on v.id_gusto = g.id_gusto join confezione c on v.id_confezione = c.id_confezione where v.id_prodotto_variante = ?";
 
             switch (attribute) {
                 case "flavour" -> sql += " and g.nomeGusto = ?";
                 case "weight" -> sql += " and c.peso = ?";
             }
 
-            PreparedStatement preparedStatement = connection.prepareStatement(sql);
+            final PreparedStatement preparedStatement = connection.prepareStatement(sql);
             preparedStatement.setString(1, idProdotto);
 
             if (attribute.equals("flavour")) {
@@ -94,10 +94,10 @@ public class VarianteDAO {
                 preparedStatement.setInt(2, Integer.parseInt(value));
             }
 
-            ResultSet resultSet = preparedStatement.executeQuery();
+            final ResultSet resultSet = preparedStatement.executeQuery();
 
             while (resultSet.next()) {
-                Variante variante = new Variante();
+                final Variante variante = new Variante();
                 variante.setIdVariante(resultSet.getInt("id_variante"));
                 variante.setIdProdotto(resultSet.getString("id_prodotto_variante"));
                 variante.setIdGusto(resultSet.getInt("id_gusto"));
@@ -111,7 +111,7 @@ public class VarianteDAO {
 
                 varianti.add(variante);
             }
-        } catch (SQLException e) {
+        } catch (final SQLException e) {
             throw new RuntimeException(e);
         }
 
@@ -120,24 +120,24 @@ public class VarianteDAO {
 
 
 
-    public List<Variante> doRetrieveVariantByFlavourAndWeight(String idProdotto, String flavour, int weight) {
-        List<Variante> varianti = new ArrayList<>();
+    public List<Variante> doRetrieveVariantByFlavourAndWeight(final String idProdotto,final String flavour,final int weight) {
+        final List<Variante> varianti = new ArrayList<>();
 
-        try (Connection connection = ConPool.getConnection()) {
-            String sql = "select * from variante v join gusto g on v.id_gusto = g.id_gusto join confezione c on v.id_confezione = c.id_confezione" +
+        try (final Connection connection = ConPool.getConnection()) {
+            final String sql = "select v.id_variante, v.id_prodotto_variante, v.id_gusto, v.id_confezione, v.prezzo, v.quantità, v.sconto, v.evidenza, g.nomeGusto, c.peso from variante v join gusto g on v.id_gusto = g.id_gusto join confezione c on v.id_confezione = c.id_confezione" +
                     " where id_prodotto_variante = ? and g.nomeGusto = ? and c.peso = ? order by (v.prezzo * (1-v.sconto/100))";
 
 
-            PreparedStatement preparedStatement = connection.prepareStatement(sql);
+            final PreparedStatement preparedStatement = connection.prepareStatement(sql);
             preparedStatement.setString(1, idProdotto);
 
             preparedStatement.setString(2, flavour);
             preparedStatement.setInt(3, weight);
 
-            ResultSet resultSet = preparedStatement.executeQuery();
+            final ResultSet resultSet = preparedStatement.executeQuery();
 
             while (resultSet.next()) {
-                Variante variante = new Variante();
+                final Variante variante = new Variante();
                 variante.setIdVariante(resultSet.getInt("id_variante"));
                 variante.setIdProdotto(resultSet.getString("id_prodotto_variante"));
                 variante.setIdGusto(resultSet.getInt("id_gusto"));
@@ -151,7 +151,7 @@ public class VarianteDAO {
 
                 varianti.add(variante);
             }
-        } catch (SQLException e) {
+        } catch (final SQLException e) {
             throw new RuntimeException(e);
         }
 
@@ -160,15 +160,15 @@ public class VarianteDAO {
 
 
 
-    public Variante doRetrieveVarianteByIdVariante(int idVariante){
-        Variante variante = new Variante();
+    public Variante doRetrieveVarianteByIdVariante(final int idVariante){
+        final Variante variante = new Variante();
 
-        try (Connection connection = ConPool.getConnection()){
-            String sql = "select * from variante v join gusto g on v.id_gusto = g.id_gusto join confezione c on v.id_confezione = c.id_confezione where id_variante = ?";
-            PreparedStatement preparedStatement = connection.prepareStatement(sql);
+        try (final Connection connection = ConPool.getConnection()){
+            final String sql = "select v.id_variante, v.id_prodotto_variante, v.id_gusto, v.id_confezione, v.prezzo, v.quantità, v.sconto, v.evidenza, g.nomeGusto, c.peso from variante v join gusto g on v.id_gusto = g.id_gusto join confezione c on v.id_confezione = c.id_confezione where v.id_variante = ?";
+            final PreparedStatement preparedStatement = connection.prepareStatement(sql);
             preparedStatement.setInt(1, idVariante);
 
-            ResultSet resultSet = preparedStatement.executeQuery();
+            final ResultSet resultSet = preparedStatement.executeQuery();
 
             if (resultSet.next()){
                 variante.setIdVariante(resultSet.getInt("id_variante"));
@@ -187,7 +187,7 @@ public class VarianteDAO {
                 return null;
             }
 
-        }catch (SQLException e){
+        }catch (final SQLException e){
             throw new RuntimeException(e);
         }
 
@@ -196,17 +196,17 @@ public class VarianteDAO {
     }
 
 
-    public Variante doRetrieveCheapestVariant(String idProdotto){
-        Variante variante = new Variante();
+    public Variante doRetrieveCheapestVariant(final String idProdotto){
+        final Variante variante = new Variante();
 
 
-        try (Connection connection = ConPool.getConnection()){
-            String sql = "select v.*, g.nomeGusto, c.peso from prodotto p join variante v on p.id_prodotto = v.id_prodotto_variante join gusto g on v.id_gusto = g.id_gusto join confezione c on v.id_confezione = c.id_confezione" +
+        try (final Connection connection = ConPool.getConnection()){
+            final String sql = "select v.*, g.nomeGusto, c.peso from prodotto p join variante v on p.id_prodotto = v.id_prodotto_variante join gusto g on v.id_gusto = g.id_gusto join confezione c on v.id_confezione = c.id_confezione" +
                     " where p.id_prodotto = ? order by (v.prezzo * (1 - v.sconto / 100)) limit 1";
-            PreparedStatement preparedStatement = connection.prepareStatement(sql);
+            final PreparedStatement preparedStatement = connection.prepareStatement(sql);
             preparedStatement.setString(1, idProdotto);
 
-            ResultSet resultSet = preparedStatement.executeQuery();
+            final ResultSet resultSet = preparedStatement.executeQuery();
             while (resultSet.next()){
                 variante.setIdVariante(resultSet.getInt("id_variante"));
                 variante.setIdProdotto(resultSet.getString("id_prodotto_variante"));
@@ -219,7 +219,7 @@ public class VarianteDAO {
                 variante.setGusto(resultSet.getString("nomeGusto"));
                 variante.setPesoConfezione(resultSet.getInt("peso"));
             }
-        }catch (SQLException e){
+        }catch (final SQLException e){
             throw new RuntimeException(e);
         }
 
@@ -227,35 +227,36 @@ public class VarianteDAO {
     }
 
 
-    public List<Variante> doRetrieveVariantiByProdotti(List<Prodotto> prodotti) {
+    public List<Variante> doRetrieveVariantiByProdotti(final List<Prodotto> prodotti) {
         if (prodotti.isEmpty()) {
             return new ArrayList<>();
         }
 
-        List<Variante> varianti = new ArrayList<>();
+        final List<Variante> varianti = new ArrayList<>();
 
-        try (Connection connection = ConPool.getConnection()) {
-            StringBuilder sql = new StringBuilder("SELECT v.*, g.nomeGusto, c.peso FROM variante v ")
+        try (final Connection connection = ConPool.getConnection()) {
+            final StringBuilder sql = new StringBuilder("SELECT v.*, g.nomeGusto, c.peso FROM variante v ")
                     .append("JOIN gusto g ON v.id_gusto = g.id_gusto ")
                     .append("JOIN confezione c ON v.id_confezione = c.id_confezione ")
                     .append("WHERE v.id_prodotto_variante IN (");
-
-            for (int i = 0; i < prodotti.size(); i++) {
+            int prodSize = prodotti.size();
+            for (int i = 0; i < prodSize; ++i) {
                 sql.append("?");
-                if (i < prodotti.size() - 1) {
+                if (i < prodSize - 1) {
                     sql.append(", ");
                 }
             }
             sql.append(")");
 
-            PreparedStatement ps = connection.prepareStatement(sql.toString());
-            for (int i = 0; i < prodotti.size(); i++) {
+            final PreparedStatement ps = connection.prepareStatement(sql.toString());
+            prodSize = prodotti.size();
+            for (int i = 0; i < prodSize; ++i) {
                 ps.setString(i + 1, prodotti.get(i).getIdProdotto());
             }
 
-            ResultSet rs = ps.executeQuery();
+            final ResultSet rs = ps.executeQuery();
             while (rs.next()) {
-                Variante variante = new Variante();
+                final Variante variante = new Variante();
                 variante.setIdVariante(rs.getInt("id_variante"));
                 variante.setIdProdotto(rs.getString("id_prodotto_variante"));
                 variante.setIdGusto(rs.getInt("id_gusto"));
@@ -269,7 +270,7 @@ public class VarianteDAO {
 
                 varianti.add(variante);
             }
-        } catch (SQLException e) {
+        } catch (final SQLException e) {
             throw new RuntimeException(e);
         }
 
@@ -277,11 +278,11 @@ public class VarianteDAO {
     }
 
 
-    public List<Variante> doRetrieveFilteredVariantiByIdProdotto(String idProdotto, String weightFilter, String tasteFilter) throws SQLException {
-        List<Variante> varianti = new ArrayList<>();
+    public List<Variante> doRetrieveFilteredVariantiByIdProdotto(final String idProdotto,final String weightFilter,final String tasteFilter) throws SQLException {
+        final List<Variante> varianti = new ArrayList<>();
 
-        try (Connection connection = ConPool.getConnection()) {
-            StringBuilder sql = new StringBuilder();
+        try (final Connection connection = ConPool.getConnection()) {
+            final StringBuilder sql = new StringBuilder();
             sql.append("SELECT v.*, g.nomeGusto, c.peso FROM variante v ");
             sql.append("JOIN gusto g ON v.id_gusto = g.id_gusto ");
             sql.append("JOIN confezione c ON v.id_confezione = c.id_confezione ");
@@ -295,7 +296,7 @@ public class VarianteDAO {
                 sql.append("AND g.nomeGusto = ? ");
             }
 
-            PreparedStatement preparedStatement = connection.prepareStatement(sql.toString());
+            final PreparedStatement preparedStatement = connection.prepareStatement(sql.toString());
             preparedStatement.setString(1, idProdotto);
 
             int paramIndex = 2;
@@ -306,9 +307,9 @@ public class VarianteDAO {
                 preparedStatement.setString(paramIndex++, tasteFilter.split(" \\(")[0]);
             }
 
-            ResultSet resultSet = preparedStatement.executeQuery();
+            final ResultSet resultSet = preparedStatement.executeQuery();
             while (resultSet.next()) {
-                Variante variante = new Variante();
+                final Variante variante = new Variante();
                 variante.setIdVariante(resultSet.getInt("id_variante"));
                 variante.setIdProdotto(resultSet.getString("id_prodotto_variante"));
                 variante.setIdGusto(resultSet.getInt("id_gusto"));
@@ -322,7 +323,7 @@ public class VarianteDAO {
 
                 varianti.add(variante);
             }
-        } catch (SQLException e) {
+        } catch (final SQLException e) {
             throw new RuntimeException(e);
         }
 
@@ -330,11 +331,11 @@ public class VarianteDAO {
     }
 
 
-    public Variante doRetrieveCheapestFilteredVarianteByIdProdotto(String idProdotto, String weightFilter, String tasteFilter, boolean evidence) throws SQLException {
+    public Variante doRetrieveCheapestFilteredVarianteByIdProdotto(final String idProdotto,final String weightFilter,final String tasteFilter,final boolean evidence) throws SQLException {
         Variante cheapestVariante = null;
 
-        try (Connection connection = ConPool.getConnection()) {
-            StringBuilder sql = new StringBuilder();
+        try (final Connection connection = ConPool.getConnection()) {
+            final StringBuilder sql = new StringBuilder();
             sql.append("SELECT v.*, g.nomeGusto, c.peso, ");
             sql.append("(v.prezzo * (1 - v.sconto / 100.0)) AS prezzo_scontato ");
             sql.append("FROM variante v ");
@@ -353,7 +354,7 @@ public class VarianteDAO {
 
             sql.append("ORDER BY prezzo_scontato ASC LIMIT 1");
 
-            PreparedStatement preparedStatement = connection.prepareStatement(sql.toString());
+            final PreparedStatement preparedStatement = connection.prepareStatement(sql.toString());
             preparedStatement.setString(1, idProdotto);
 
             int paramIndex = 2;
@@ -364,7 +365,7 @@ public class VarianteDAO {
                 preparedStatement.setString(paramIndex++, tasteFilter.split(" \\(")[0]);
             }
 
-            ResultSet resultSet = preparedStatement.executeQuery();
+            final ResultSet resultSet = preparedStatement.executeQuery();
             if (resultSet.next()) {
                 cheapestVariante = new Variante();
                 cheapestVariante.setIdVariante(resultSet.getInt("id_variante"));
@@ -378,7 +379,7 @@ public class VarianteDAO {
                 cheapestVariante.setGusto(resultSet.getString("nomeGusto"));
                 cheapestVariante.setPesoConfezione(resultSet.getInt("peso"));
             }
-        } catch (SQLException e) {
+        } catch (final SQLException e) {
             throw new RuntimeException(e);
         }
 
@@ -386,9 +387,9 @@ public class VarianteDAO {
     }
 
 
-    public void updateVariante(Variante v, int idVariante){
-        try (Connection connection = ConPool.getConnection()){
-            PreparedStatement preparedStatement = connection.prepareStatement("update variante set id_variante = ?, id_prodotto_variante = ?, id_gusto = ?, id_confezione = ?, prezzo = ?, quantità = ?, sconto = ?, evidenza = ? where id_variante = ?");
+    public void updateVariante(final Variante v,final int idVariante){
+        try (final Connection connection = ConPool.getConnection()){
+            final PreparedStatement preparedStatement = connection.prepareStatement("update variante set id_variante = ?, id_prodotto_variante = ?, id_gusto = ?, id_confezione = ?, prezzo = ?, quantità = ?, sconto = ?, evidenza = ? where id_variante = ?");
             preparedStatement.setInt(1, v.getIdVariante());
             preparedStatement.setString(2, v.getIdProdotto());
             preparedStatement.setInt(3, v.getIdGusto());
@@ -400,28 +401,28 @@ public class VarianteDAO {
             preparedStatement.setInt(9, idVariante);
 
 
-            int rows = preparedStatement.executeUpdate();
-        }catch (SQLException e){
+            final int rows = preparedStatement.executeUpdate();
+        }catch (final SQLException e){
             throw new RuntimeException(e);
         }
     }
 
 
-    public void doRemoveVariante(int idVariante){
-        try (Connection connection = ConPool.getConnection()){
-            PreparedStatement preparedStatement = connection.prepareStatement("delete from variante where id_variante = ?");
+    public void doRemoveVariante(final int idVariante){
+        try (final Connection connection = ConPool.getConnection()){
+            final PreparedStatement preparedStatement = connection.prepareStatement("delete from variante where id_variante = ?");
             preparedStatement.setInt(1, idVariante);
 
-            int rows = preparedStatement.executeUpdate();
+            final int rows = preparedStatement.executeUpdate();
 
-        }catch (SQLException e){
+        }catch (final SQLException e){
             throw new RuntimeException(e);
         }
     }
 
-    public void doSaveVariante(Variante v){
-        try (Connection connection = ConPool.getConnection()){
-            PreparedStatement preparedStatement = connection.prepareStatement("insert into variante (id_prodotto_variante, id_gusto, id_confezione, prezzo, quantità, sconto, evidenza) values (?, ?, ?, ?, ?, ?, ?)");
+    public void doSaveVariante(final Variante v){
+        try (final Connection connection = ConPool.getConnection()){
+            final PreparedStatement preparedStatement = connection.prepareStatement("insert into variante (id_prodotto_variante, id_gusto, id_confezione, prezzo, quantità, sconto, evidenza) values (?, ?, ?, ?, ?, ?, ?)");
             preparedStatement.setString(1, v.getIdProdotto());
             preparedStatement.setInt(2, v.getIdGusto());
             preparedStatement.setInt(3, v.getIdConfezione());
@@ -432,10 +433,8 @@ public class VarianteDAO {
 
             preparedStatement.executeUpdate();
 
-        }catch (SQLException e){
+        }catch (final SQLException e){
             throw new RuntimeException(e);
         }
     }
-
-
 }

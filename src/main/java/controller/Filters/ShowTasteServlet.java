@@ -21,7 +21,7 @@ import java.util.Map;
 public class ShowTasteServlet extends HttpServlet {
 
     @Override
-    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+    protected void doGet(final HttpServletRequest req,final  HttpServletResponse resp) throws ServletException, IOException {
         List<Prodotto> originalProducts = (List<Prodotto>) req.getSession().getAttribute("filteredProducts");
 
         if (originalProducts == null) {
@@ -29,34 +29,34 @@ public class ShowTasteServlet extends HttpServlet {
         }
 
         // Creare una mappa per contare le occorrenze di ciascun gusto
-        Map<String, Integer> tasteCounts = new HashMap<>();
-        VarianteDAO varianteDAO = new VarianteDAO();
+        final Map<String, Integer> tasteCounts = new HashMap<>();
+        final VarianteDAO varianteDAO = new VarianteDAO();
 
         // Raccogliere tutte le varianti dei prodotti filtrati in una singola query
-        List<Variante> varianti = varianteDAO.doRetrieveVariantiByProdotti(originalProducts);
+        final List<Variante> varianti = varianteDAO.doRetrieveVariantiByProdotti(originalProducts);
 
         // Contare le occorrenze di ciascun gusto
-        for (Variante v : varianti) {
-            String gusto = v.getGusto();
+        for (final Variante v : varianti) {
+            final String gusto = v.getGusto();
             tasteCounts.put(gusto, tasteCounts.getOrDefault(gusto, 0) + 1);
         }
 
         // Creare il JSONArray per la risposta contenente ogni varainte
-        JSONArray jsonArray = new JSONArray();
-        for (String key : tasteCounts.keySet()) {
-            String tasteWithCount = key + " (" + tasteCounts.get(key) + ")";
+        final JSONArray jsonArray = new JSONArray();
+        for (final String key : tasteCounts.keySet()) {
+            final String tasteWithCount = key + " (" + tasteCounts.get(key) + ")";
             jsonArray.add(tasteWithCount);
         }
 
         // Impostare il tipo di contenuto e inviare la risposta
         resp.setContentType("application/json");
-        PrintWriter out = resp.getWriter();
+        final PrintWriter out = resp.getWriter();
         out.println(jsonArray);
         out.flush();
     }
 
     @Override
-    protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+    protected void doPost(final HttpServletRequest req,final HttpServletResponse resp) throws ServletException, IOException {
         doGet(req, resp);
     }
 }

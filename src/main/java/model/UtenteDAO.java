@@ -6,13 +6,13 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-
+final
 public class UtenteDAO {
 
-    public Utente doRetrieveByEmailAndPassword(String email, String password) throws SQLException {
+    public Utente doRetrieveByEmailAndPassword(final String email,final String password) throws SQLException {
         Utente u = null; // Imposta l'utente a null inizialmente
-        try (Connection con = ConPool.getConnection()){
-            PreparedStatement preparedStatement = con.prepareStatement("SELECT * FROM utente WHERE email=? AND password = SHA1(?)");
+        try (final Connection con = ConPool.getConnection()){
+            final PreparedStatement preparedStatement = con.prepareStatement("SELECT u.email, u.password, u.nome, u.cognome, u.codice_fiscale, u.data_di_nascita, u.indirizzo, u.numero_di_cellulare, u.poteri FROM utente u WHERE u.email=? AND u.password = SHA1(?)");
             preparedStatement.setString(1, email);
             preparedStatement.setString(2, password);
 
@@ -21,7 +21,7 @@ public class UtenteDAO {
             System.out.println("Password: " + password);
 
 
-            ResultSet resultSet = preparedStatement.executeQuery();
+            final ResultSet resultSet = preparedStatement.executeQuery();
             if (resultSet.next()){ // Usa if invece di while perché ti aspetti al massimo un utente
                 u = new Utente();
                 u.setEmail(resultSet.getString("email"));
@@ -34,19 +34,19 @@ public class UtenteDAO {
                 u.setTelefono(resultSet.getString("numero_di_cellulare"));
                 u.setPoteri(resultSet.getBoolean("poteri"));
             }
-        } catch (SQLException e) {
+        } catch (final SQLException e) {
             throw new RuntimeException(e);
         }
         return u;
     }
 
 
-    public Utente doRetrieveByEmail(String email) {
+    public Utente doRetrieveByEmail(final String email) {
         Utente u = null;
-        try(Connection con= ConPool.getConnection()) {
-            PreparedStatement preparedStatement=con.prepareStatement("SELECT email,password,nome,cognome,codice_fiscale,data_di_nascita,indirizzo,numero_di_cellulare,poteri FROM utente WHERE email=?");
+        try(final Connection con= ConPool.getConnection()) {
+            final PreparedStatement preparedStatement=con.prepareStatement("SELECT u.email, u.password, u.nome, u.cognome, u.codice_fiscale, u.data_di_nascita, u.indirizzo, u.numero_di_cellulare, u.poteri FROM utente u WHERE u.email=?");
             preparedStatement.setString(1,email);
-            ResultSet resultSet = preparedStatement.executeQuery();
+            final ResultSet resultSet = preparedStatement.executeQuery();
             while (resultSet.next()){
                 u = new Utente();
                 u.setEmail(resultSet.getString("email"));
@@ -60,7 +60,7 @@ public class UtenteDAO {
                 u.setPoteri(resultSet.getBoolean("poteri"));
             }
         }
-        catch (SQLException sqlException)
+        catch (final SQLException sqlException)
         {
             throw new RuntimeException(sqlException);
         }
@@ -68,9 +68,9 @@ public class UtenteDAO {
         return u;
     }
 
-    public void doSave(Utente utente) {
-        try (Connection con = ConPool.getConnection()) {
-            PreparedStatement ps = con.prepareStatement(
+    public void doSave(final Utente utente) {
+        try (final Connection con = ConPool.getConnection()) {
+            final PreparedStatement ps = con.prepareStatement(
                     "INSERT INTO utente (email,password,nome,cognome,codice_fiscale,data_di_nascita,indirizzo,numero_di_cellulare) VALUES(?,?,?,?,?,?,?,?)",
                     Statement.RETURN_GENERATED_KEYS);
 
@@ -79,8 +79,8 @@ public class UtenteDAO {
             ps.setString(3, utente.getNome());
             ps.setString(4, utente.getCognome());
             ps.setString(5, utente.getCodiceFiscale());
-            Date utilDate = utente.getDataNascita();
-            java.sql.Date sqlDate = new java.sql.Date(utilDate.getTime());
+            final Date utilDate = utente.getDataNascita();
+            final java.sql.Date sqlDate = new java.sql.Date(utilDate.getTime());
 
             ps.setDate(6, sqlDate);
             ps.setString(7, utente.getIndirizzo());
@@ -88,26 +88,26 @@ public class UtenteDAO {
             if (ps.executeUpdate() != 1) {
                 throw new RuntimeException("INSERT error.");
             }
-        } catch (SQLException e) {
+        } catch (final SQLException e) {
             throw new RuntimeException(e);
         }
     }
 
     public List<Utente> doRetrieveAll(){
 
-        ArrayList<Utente> utenti = new ArrayList<>();
+        final ArrayList<Utente> utenti = new ArrayList<>();
 
-        Statement st;
+        final Statement st;
 
-        ResultSet rs;
+        final ResultSet rs;
 
         Utente p;
 
-        try (Connection con = ConPool.getConnection()) {
+        try (final Connection con = ConPool.getConnection()) {
 
             st = con.createStatement();
 
-            rs = st.executeQuery("SELECT * FROM utente");
+            rs = st.executeQuery("SELECT u.email, u.password, u.nome, u.cognome, u.codice_fiscale, u.data_di_nascita, u.indirizzo, u.numero_di_cellulare, u.poteri FROM utente u");
 
 
 
@@ -140,16 +140,16 @@ public class UtenteDAO {
             return utenti;
         }
 
-        catch (SQLException e) {
+        catch (final SQLException e) {
 
             throw new RuntimeException(e);
         }
     }
 
-    public void doUpdateCustomer(Utente u, String email) {
-        String query = "UPDATE utente SET email=?, nome=?, cognome=?, codice_fiscale=?, data_di_nascita=?, indirizzo=?, numero_di_cellulare=?, poteri=? WHERE email=?";
-        try (Connection con = ConPool.getConnection();
-             PreparedStatement ps = con.prepareStatement(query)) {
+    public void doUpdateCustomer(final Utente u,final String email) {
+        final String query = "UPDATE utente SET email=?, nome=?, cognome=?, codice_fiscale=?, data_di_nascita=?, indirizzo=?, numero_di_cellulare=?, poteri=? WHERE email=?";
+        try (final Connection con = ConPool.getConnection();
+             final PreparedStatement ps = con.prepareStatement(query)) {
 
             ps.setString(1, u.getEmail());
             ps.setString(2, u.getNome());
@@ -163,33 +163,33 @@ public class UtenteDAO {
             ps.setString(9, email);
 
             ps.executeUpdate();
-        } catch (SQLException e) {
+        } catch (final SQLException e) {
             throw new RuntimeException(e);
         }
     }
 
 
 
-    public void doUpdateCustomerGeneric(Utente u, String attributeToUpdate, String value){
+    public void doUpdateCustomerGeneric(final Utente u,final String attributeToUpdate,final String value){
 
-       String query = "UPDATE Utente SET " + attributeToUpdate + " = ? WHERE email = ?";
+        final String query = "UPDATE Utente SET " + attributeToUpdate + " = ? WHERE email = ?";
 
 
-        try(Connection connection = ConPool.getConnection()){
-            PreparedStatement preparedStatement = connection.prepareStatement(query);
+        try(final Connection connection = ConPool.getConnection()){
+            final PreparedStatement preparedStatement = connection.prepareStatement(query);
 
             switch (attributeToUpdate){
                 case "dataDiNascita" ->{
-                    SimpleDateFormat simpleDateFormat = new SimpleDateFormat("AAAA-MM-dd");
-                    Date d = simpleDateFormat.parse(value);
+                    final SimpleDateFormat simpleDateFormat = new SimpleDateFormat("AAAA-MM-dd");
+                    final Date d = simpleDateFormat.parse(value);
                     preparedStatement.setDate(1, (java.sql.Date) d);
                 }
                 case "poteri" ->{
                     if(value.equals("true")){
-                        boolean b = true;
+                        final boolean b = true;
                         preparedStatement.setBoolean(1, b);
                     }else {
-                        boolean x = false;
+                        final boolean x = false;
                         preparedStatement.setBoolean(1, x);
                     }
 
@@ -202,18 +202,18 @@ public class UtenteDAO {
 
             preparedStatement.executeUpdate();
 
-        }catch (SQLException | ParseException e){
+        }catch (final SQLException | ParseException e){
             throw new RuntimeException(e);
         }
     }
 
 
-    public void doRemoveUserByEmail(String email){
-        try (Connection connection = ConPool.getConnection()){
-            PreparedStatement preparedStatement = connection.prepareStatement("delete from utente where email = ?");
+    public void doRemoveUserByEmail(final String email){
+        try (final Connection connection = ConPool.getConnection()){
+            final PreparedStatement preparedStatement = connection.prepareStatement("delete from utente where email = ?");
             preparedStatement.setString(1, email);
 
-            int rowsDeleted = preparedStatement.executeUpdate();
+            final int rowsDeleted = preparedStatement.executeUpdate();
 
             if (rowsDeleted <= 0){
                 System.out.println("No user was deleted from db");
@@ -221,7 +221,7 @@ public class UtenteDAO {
                 System.out.println("User with email:" + email + " was deleted from db");
             }
 
-        }catch (SQLException e){
+        }catch (final SQLException e){
             throw new RuntimeException(e);
         }
     }

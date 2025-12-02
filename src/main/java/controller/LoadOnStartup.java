@@ -12,11 +12,11 @@ import java.util.List;
 @WebServlet(value = "/loadOnStartUp", loadOnStartup = 0)
 public class LoadOnStartup extends HttpServlet {
     @Override
-    public void init(ServletConfig config) throws ServletException {
+    public void init(final ServletConfig config) throws ServletException {
         super.init(config);
 
-        ProdottoDAO prodottoDAO = new ProdottoDAO();
-        List<Prodotto> prodottoList = prodottoDAO.doRetrieveAll();
+        final ProdottoDAO prodottoDAO = new ProdottoDAO();
+        final List<Prodotto> prodottoList = prodottoDAO.doRetrieveAll();
 
         // Salva i prodotti nel servletContext
         getServletContext().setAttribute("Products", prodottoList);

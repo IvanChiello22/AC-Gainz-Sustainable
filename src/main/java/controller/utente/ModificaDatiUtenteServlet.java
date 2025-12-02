@@ -24,25 +24,27 @@ import java.util.regex.Pattern;
 @WebServlet("/editServlet")
 public class ModificaDatiUtenteServlet extends HttpServlet {
 
+    private static final Pattern PASSWORD_REGEX = Pattern.compile("^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[^\\w\\s]).{8,}$");
+    private static final Pattern PHONE_REGEX = Pattern.compile("^3[0-9]{8,9}$");
+    private static final Pattern CODFISC_REGEX = Pattern.compile("^[A-Z]{6}\\d{2}[A-Z]\\d{2}[A-Z]\\d{3}[A-Z]$");
 
     @Override
-    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+    protected void doGet(final HttpServletRequest req,final  HttpServletResponse resp) throws ServletException, IOException {
         super.doGet(req, resp);
     }
 
     @Override
-    protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+    protected void doPost(final HttpServletRequest req,final HttpServletResponse resp) throws ServletException, IOException {
         processRequest(req, resp);
     }
 
-    protected void processRequest(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
-        String field = request.getParameter("field");
+    protected void processRequest(final HttpServletRequest request,final  HttpServletResponse response) throws ServletException, IOException {
+        final String field = request.getParameter("field");
 
-        HttpSession session = request.getSession();
-        Utente utente = (Utente) session.getAttribute("Utente");
-        RequestDispatcher requestDispatcher = request.getRequestDispatcher("areaUtenteServlet");
-        UtenteDAO utenteDAO = new UtenteDAO();
+        final HttpSession session = request.getSession();
+        final Utente utente = (Utente) session.getAttribute("Utente");
+        final RequestDispatcher requestDispatcher = request.getRequestDispatcher("areaUtenteServlet");
+        final UtenteDAO utenteDAO = new UtenteDAO();
 
 
         //gestiamo in base a cosa l'utente vuole modificare
@@ -70,14 +72,14 @@ public class ModificaDatiUtenteServlet extends HttpServlet {
 
 
     //metodo per il cambio password
-    private void handlePasswordChange(HttpServletRequest request, HttpServletResponse response, Utente utente,
-                                      RequestDispatcher requestDispatcher, UtenteDAO utenteDAO)
+    private void handlePasswordChange(final HttpServletRequest request,final  HttpServletResponse response,
+                                      final Utente utente,final  RequestDispatcher requestDispatcher,final  UtenteDAO utenteDAO)
             throws ServletException, IOException {
 
         //prendiamo i dati dal form
-        String currentPassword = request.getParameter("current-password");
-        String newPassword = request.getParameter("new-password");
-        String confirmPassword = request.getParameter("confirm-password");
+        final String currentPassword = request.getParameter("current-password");
+        final String newPassword = request.getParameter("new-password");
+        final String confirmPassword = request.getParameter("confirm-password");
 
         //controlliamo che sia corretto
         if (currentPassword == null || newPassword == null || confirmPassword == null) {
@@ -89,9 +91,7 @@ public class ModificaDatiUtenteServlet extends HttpServlet {
         }
 
         //controlliamo che rispettino il pattern
-        String passwordPattern = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[^\\w\\s]).{8,}$";
-        Pattern passwordRegex = Pattern.compile(passwordPattern);
-        Matcher newPasswordMatcher = passwordRegex.matcher(newPassword);
+        final Matcher newPasswordMatcher = PASSWORD_REGEX.matcher(newPassword);
 
         //se la nuova password non rispetta i parametri
         if (!newPasswordMatcher.matches()) {
@@ -102,7 +102,7 @@ public class ModificaDatiUtenteServlet extends HttpServlet {
             return;
         }
 
-        Matcher confirmPasswordMatcher = passwordRegex.matcher(confirmPassword);
+        final Matcher confirmPasswordMatcher = PASSWORD_REGEX.matcher(confirmPassword);
         //se la conferma della nuova password non rispetta i parametri
         if (!confirmPasswordMatcher.matches()) {
             request.setAttribute("messageType", "error");
@@ -112,7 +112,7 @@ public class ModificaDatiUtenteServlet extends HttpServlet {
             return;
         }
 
-        String hashedCurrentPassword = sha1(currentPassword);
+        final String hashedCurrentPassword = sha1(currentPassword);
 
         System.out.println("Hashed current password: " + hashedCurrentPassword);
         System.out.println("Stored password: " + utente.getPassword());
@@ -151,12 +151,12 @@ public class ModificaDatiUtenteServlet extends HttpServlet {
         requestDispatcher.forward(request, response);
     }
 
-    private void handleAddressChange(HttpServletRequest request, HttpServletResponse response, Utente utente,
-                                     RequestDispatcher requestDispatcher, UtenteDAO utenteDAO)
+    private void handleAddressChange(final HttpServletRequest request,final HttpServletResponse response,final Utente utente,
+                                     final RequestDispatcher requestDispatcher,final UtenteDAO utenteDAO)
             throws ServletException, IOException {
 
         //prendo l'indirizzo dal form
-        String indirizzo = request.getParameter("street");
+        final String indirizzo = request.getParameter("street");
 
         //controlliamo che sia corretto
         if (indirizzo == null) {
@@ -178,11 +178,11 @@ public class ModificaDatiUtenteServlet extends HttpServlet {
         requestDispatcher.forward(request, response);
     }
 
-    private void handlePhoneChange(HttpServletRequest request, HttpServletResponse response, Utente utente,
-                                   RequestDispatcher requestDispatcher, UtenteDAO utenteDAO)
+    private void handlePhoneChange(final HttpServletRequest request,final HttpServletResponse response,final Utente utente,
+                                   final RequestDispatcher requestDispatcher,final UtenteDAO utenteDAO)
             throws ServletException, IOException {
         //prendiamo il parametro del form
-        String telefono = request.getParameter("new-phone");
+        final String telefono = request.getParameter("new-phone");
 
         //controlliamo che sia correttamente
         if (telefono == null) {
@@ -194,9 +194,8 @@ public class ModificaDatiUtenteServlet extends HttpServlet {
         }
 
         //controlliamo che rispetti il pattern
-        String phonePattern = "^3[0-9]{8,9}$";
-        Pattern phoneRegex = Pattern.compile(phonePattern);
-        Matcher phoneMatcher = phoneRegex.matcher(telefono);
+
+        final Matcher phoneMatcher = PHONE_REGEX.matcher(telefono);
 
         if (!phoneMatcher.matches()) {
             request.setAttribute("messageType", "error");
@@ -217,11 +216,11 @@ public class ModificaDatiUtenteServlet extends HttpServlet {
         requestDispatcher.forward(request, response);
     }
 
-    private void handleCodiceFiscaleChange(HttpServletRequest request, HttpServletResponse response, Utente utente,
-                                           RequestDispatcher requestDispatcher, UtenteDAO utenteDAO)
+    private void handleCodiceFiscaleChange(final HttpServletRequest request,final  HttpServletResponse response,final  Utente utente,
+                                           final RequestDispatcher requestDispatcher,final  UtenteDAO utenteDAO)
             throws ServletException, IOException {
         //prendiamo il dato dal form
-        String codFiscale = request.getParameter("new-codice-fiscale");
+        final String codFiscale = request.getParameter("new-codice-fiscale");
 
         //controlliamo che sia arrivato correttamente
         if (codFiscale == null) {
@@ -233,9 +232,7 @@ public class ModificaDatiUtenteServlet extends HttpServlet {
         }
 
         //controlliamo che rispetti il pattern
-        String codFiscalePattern = "^[A-Z]{6}\\d{2}[A-Z]\\d{2}[A-Z]\\d{3}[A-Z]$";
-        Pattern codFiscaleRegex = Pattern.compile(codFiscalePattern);
-        Matcher codFiscaleMatcher = codFiscaleRegex.matcher(codFiscale);
+        final Matcher codFiscaleMatcher = CODFISC_REGEX.matcher(codFiscale);
 
         //nel caso non rispetti il pattern
         if (!codFiscaleMatcher.matches()) {
@@ -257,11 +254,11 @@ public class ModificaDatiUtenteServlet extends HttpServlet {
         requestDispatcher.forward(request, response);
     }
 
-    private void handleDataNascitaChange(HttpServletRequest request, HttpServletResponse response, Utente utente,
-                                         RequestDispatcher requestDispatcher, UtenteDAO utenteDAO)
+    private void handleDataNascitaChange(final HttpServletRequest request,final HttpServletResponse response,final Utente utente,
+                                         final RequestDispatcher requestDispatcher,final UtenteDAO utenteDAO)
             throws ServletException, IOException {
         //prendiamo il dato del form
-        String ddn = request.getParameter("new-birthdate");
+        final String ddn = request.getParameter("new-birthdate");
 
         //nel caso non fosse arrivato correttamente
         if (ddn == null) {
@@ -272,8 +269,8 @@ public class ModificaDatiUtenteServlet extends HttpServlet {
             return;
         }
 
-        String[] fieldsDate = ddn.split("-");
-        int flag = Integer.parseInt(fieldsDate[0]);
+        final String[] fieldsDate = ddn.split("-");
+        final int flag = Integer.parseInt(fieldsDate[0]);
 
         if (flag < 1900) {
             request.setAttribute("messageType", "error");
@@ -284,9 +281,9 @@ public class ModificaDatiUtenteServlet extends HttpServlet {
         }
 
         //aggiorniamo il campo
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+        final SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
         try {
-            Date dateformatted = sdf.parse(ddn);
+            final Date dateformatted = sdf.parse(ddn);
             utente.setDataNascita(dateformatted);
             request.getSession().setAttribute("Utente", utente);
             utenteDAO.doUpdateCustomerGeneric(utente, "data_di_nascita", ddn);
@@ -295,16 +292,16 @@ public class ModificaDatiUtenteServlet extends HttpServlet {
             request.setAttribute("message", "Data di nascita modificata con successo");
             request.setAttribute("field", "data-di-nascita");
             requestDispatcher.forward(request, response);
-        } catch (ParseException e) {
+        } catch (final ParseException e) {
             throw new ServletException("Errore nel parsing della data di nascita", e);
         }
     }
 
-    private void handleNomeChange(HttpServletRequest request, HttpServletResponse response, Utente utente,
-                                  RequestDispatcher requestDispatcher, UtenteDAO utenteDAO)
+    private void handleNomeChange(final HttpServletRequest request,final HttpServletResponse response,final Utente utente,
+                                  final RequestDispatcher requestDispatcher,final  UtenteDAO utenteDAO)
             throws ServletException, IOException {
         //prendiamo il dato del form
-        String nome = request.getParameter("new-name");
+        final String nome = request.getParameter("new-name");
 
         //nel caso non fosse arrivato correttamente
         if (nome == null) {
@@ -326,11 +323,11 @@ public class ModificaDatiUtenteServlet extends HttpServlet {
         requestDispatcher.forward(request, response);
     }
 
-    private void handleCognomeChange(HttpServletRequest request, HttpServletResponse response, Utente utente,
-                                     RequestDispatcher requestDispatcher, UtenteDAO utenteDAO)
+    private void handleCognomeChange(final HttpServletRequest request,final HttpServletResponse response,final Utente utente,
+                                     final RequestDispatcher requestDispatcher,final UtenteDAO utenteDAO)
             throws ServletException, IOException {
         //prendiamo il dato dal form
-        String cognome = request.getParameter("new-surname");
+        final String cognome = request.getParameter("new-surname");
 
         //nel caso non fosse arrivato correttamente
         if (cognome == null) {
@@ -354,13 +351,13 @@ public class ModificaDatiUtenteServlet extends HttpServlet {
 
     public String sha1(String pass) {
         try {
-            var digest =
+            final var digest =
                     MessageDigest.getInstance("SHA-1");
             digest.reset();
             digest.update(pass.getBytes(StandardCharsets.UTF_8));
             pass = String.format("%040x", new
                     BigInteger(1, digest.digest()));
-        } catch (NoSuchAlgorithmException e) {
+        } catch (final NoSuchAlgorithmException e) {
             throw new RuntimeException(e);
         }
 

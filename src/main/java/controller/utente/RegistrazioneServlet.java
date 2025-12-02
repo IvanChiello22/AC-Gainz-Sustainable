@@ -20,26 +20,26 @@ import java.util.regex.Pattern;
 public class RegistrazioneServlet extends HttpServlet {
 
     //definiamo i pattern da dover rispettare
-    private static final String EMAIL_PATTERN = "^[\\w.%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,8}$";
-    private static final String PASSWORD_PATTERN = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[^\\w\\s]).{8,}$";
-    private static final String COD_FISCALE_PATTERN = "^[A-Z]{6}\\d{2}[A-Z]\\d{2}[A-Z]\\d{3}[A-Z]$";
-    private static final String PHONE_PATTERN = "^3[0-9]{8,9}$";
+    private static final Pattern EMAIL_PATTERN = Pattern.compile("^[\\w.%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,8}$");
+    private static final Pattern PASSWORD_PATTERN = Pattern.compile("^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[^\\w\\s]).{8,}$");
+    private static final Pattern COD_FISCALE_PATTERN = Pattern.compile("^[A-Z]{6}\\d{2}[A-Z]\\d{2}[A-Z]\\d{3}[A-Z]$");
+    private static final Pattern PHONE_PATTERN = Pattern.compile("^3[0-9]{8,9}$");
     private static final SimpleDateFormat DATE_FORMATTER = new SimpleDateFormat("yyyy-MM-dd");
 
-    public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
+    public void doGet(final HttpServletRequest request,final HttpServletResponse response) throws IOException, ServletException {
         this.doPost(request, response); // Delegate GET requests to doPost
     }
 
-    public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
+    public void doPost(final HttpServletRequest request,final HttpServletResponse response) throws IOException, ServletException {
         //prendiamo i dati dal form
-        String email = request.getParameter("email");
-        String password = request.getParameter("password");
-        String nome = request.getParameter("nome");
-        String cognome = request.getParameter("cognome");
-        String codiceFiscale = request.getParameter("codiceFiscale");
-        String dateString = request.getParameter("dataDiNascita");
-        String indirizzo = request.getParameter("indirizzo");
-        String numCellulare = request.getParameter("numCellulare");
+        final String email = request.getParameter("email");
+        final String password = request.getParameter("password");
+        final String nome = request.getParameter("nome");
+        final String cognome = request.getParameter("cognome");
+        final String codiceFiscale = request.getParameter("codiceFiscale");
+        final String dateString = request.getParameter("dataDiNascita");
+        final String indirizzo = request.getParameter("indirizzo");
+        final String numCellulare = request.getParameter("numCellulare");
 
         // Validifichiamo l'email
         if (!isValidEmail(email)) {
@@ -49,7 +49,7 @@ public class RegistrazioneServlet extends HttpServlet {
         }
 
         // Controlliamo se l'email non sia gia presente
-        UtenteDAO utenteDAO = new UtenteDAO();
+        final UtenteDAO utenteDAO = new UtenteDAO();
         if (utenteDAO.doRetrieveByEmail(email) != null) {
             request.setAttribute("error", "Email già registrata.");
             request.getRequestDispatcher("Registrazione.jsp").forward(request, response);
@@ -71,7 +71,7 @@ public class RegistrazioneServlet extends HttpServlet {
         }
 
         // Parse della data di nascita
-        Date dataDiNascita = parseDate(dateString);
+        final Date dataDiNascita = parseDate(dateString);
         if (dataDiNascita == null) {
             request.setAttribute("error", "Pattern data non rispettato");
             request.getRequestDispatcher("Registrazione.jsp").forward(request, response);
@@ -86,7 +86,7 @@ public class RegistrazioneServlet extends HttpServlet {
         }
 
         // Dopo aver passato tutte le validificazioni creiamo l'oggetto utente da salvare nel DB
-        Utente utente = new Utente();
+        final Utente utente = new Utente();
         utente.setEmail(email);
         utente.setPassword(password);
         utente.hashPassword();
@@ -100,7 +100,7 @@ public class RegistrazioneServlet extends HttpServlet {
         utenteDAO.doSave(utente);
 
         // Store user in session and forward to index.jsp
-        HttpSession session = request.getSession();
+        final HttpSession session = request.getSession();
         session.setAttribute("Utente", utente);
         response.sendRedirect("index.jsp");
     }
@@ -108,39 +108,35 @@ public class RegistrazioneServlet extends HttpServlet {
 
 
     // Metodo per validificare l'email
-    private boolean isValidEmail(String email) {
-        Pattern emailRegex = Pattern.compile(EMAIL_PATTERN);
-        Matcher emailMatcher = emailRegex.matcher(email);
+    private boolean isValidEmail(final String email) {
+        final Matcher emailMatcher = EMAIL_PATTERN.matcher(email);
         return emailMatcher.matches();
     }
 
     // Metodo per validificare la password
-    private boolean isValidPassword(String password) {
-        Pattern passwordRegex = Pattern.compile(PASSWORD_PATTERN);
-        Matcher passwordMatcher = passwordRegex.matcher(password);
+    private boolean isValidPassword(final String password) {
+        final Matcher passwordMatcher = PASSWORD_PATTERN.matcher(password);
         return passwordMatcher.matches();
     }
 
     // Metodo per validificare codice fiscale
-    private boolean isValidCodiceFiscale(String codiceFiscale) {
-        Pattern codFiscaleRegex = Pattern.compile(COD_FISCALE_PATTERN);
-        Matcher codFiscaleMatcher = codFiscaleRegex.matcher(codiceFiscale);
+    private boolean isValidCodiceFiscale(final String codiceFiscale) {
+        final Matcher codFiscaleMatcher = COD_FISCALE_PATTERN.matcher(codiceFiscale);
         return codFiscaleMatcher.matches();
     }
 
     // Metodo per il parse della data
-    private Date parseDate(String dateString) {
+    private Date parseDate(final String dateString) {
         try {
             return DATE_FORMATTER.parse(dateString);
-        } catch (ParseException e) {
+        } catch (final ParseException e) {
             return null;
         }
     }
 
     // Method to validificare il numero di telefono
-    private boolean isValidPhone(String numCellulare) {
-        Pattern phoneRegex = Pattern.compile(PHONE_PATTERN);
-        Matcher phoneMatcher = phoneRegex.matcher(numCellulare);
+    private boolean isValidPhone(final String numCellulare) {
+        final Matcher phoneMatcher = PHONE_PATTERN.matcher(numCellulare);
         return phoneMatcher.matches();
     }
 }
