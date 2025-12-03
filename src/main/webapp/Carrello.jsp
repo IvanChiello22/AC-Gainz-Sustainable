@@ -26,7 +26,7 @@
                     total += cartItem.getPrezzo();
         %>
         <div class="product">
-            <img src="<%= cartItem.getImmagineProdotto() %>" alt="<%= cartItem.getNomeProdotto() %>">
+            <img src="<%= cartItem.getImmagineProdotto() %>" alt="<%= cartItem.getNomeProdotto() %>" loading="lazy">
             <div class="product-info">
                 <h3><%= cartItem.getNomeProdotto() %></h3>
                 <p><%= cartItem.getGusto() %></p>

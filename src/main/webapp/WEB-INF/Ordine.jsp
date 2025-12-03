@@ -98,7 +98,7 @@
                     for (DettaglioOrdine item: dettaglioOrdine){
             %>
             <div class="order-item">
-                <img src="<%=item.getImmagineProdotto()%>" class="product-image" alt="<%=item.getNomeProdotto()%>">
+                <img src="<%=item.getImmagineProdotto()%>" class="product-image" alt="<%=item.getNomeProdotto()%>" loading="lazy">
                 <div class="product-details">
                     <p style="font-size: 21px;font-weight: 450"><%=item.getNomeProdotto()%></p>
                     <p>Gusto: <%=item.getGusto()%></p>

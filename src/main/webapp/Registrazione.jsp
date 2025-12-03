@@ -153,7 +153,7 @@
                     <label for="password"></label>
                     <input type="password" name="password" id="password" placeholder="Password" required
                            onfocus="showPasswordRequirements(true)" onblur="showPasswordRequirements(false)">
-                    <img src="Immagini/hide.png" alt="hide png" id="imgPass" onclick="togglePassword('password', 'imgPass')">
+                    <img src="Immagini/hide.png" alt="hide png" id="imgPass" loading="lazy" onclick="togglePassword('password', 'imgPass')">
                     <div class="password-requirements" id="password-requirements">
                         <p>La password deve contenere:</p>
                         <ul>

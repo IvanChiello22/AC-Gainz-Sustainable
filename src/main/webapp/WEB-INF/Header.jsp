@@ -29,7 +29,7 @@
             <label>
                 <input type="search" id="search-input" placeholder="Search.." tabindex="0">
             </label>
-            <img id="search-img" src="Immagini/search.png" alt="search-img">
+            <img id="search-img" src="Immagini/search.png" alt="search-img" loading="lazy">
         </div>
         <div class="header-carrello">
             <div id="cart" tabindex="0">Carrello (0)</div>

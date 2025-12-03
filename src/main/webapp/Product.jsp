@@ -333,7 +333,7 @@
 %>
 <div class="container-flex">
     <div class="info-left">
-        <img src="<%=p.getImmagine()%>" alt="<%=p.getNome()%>">
+        <img src="<%=p.getImmagine()%>" alt="<%=p.getNome()%>" loading="lazy">
     </div>
 
     <div class="info-right">
@@ -431,7 +431,7 @@
                         <% if (z.getSconto() > 0) { %>
                         <span class="suggests-product-sconto"><%= z.getSconto() %>% di Sconto</span>
                         <% } %>
-                        <img src="<%= s.getImmagine() %>" alt="<%= s.getNome() %>">
+                        <img src="<%= s.getImmagine() %>" alt="<%= s.getNome() %>" loading="lazy">
                         <button class="suggests-cartAdd" onclick="addCartVariant('<%=z.getIdProdotto()%>', '1', '<%=z.getGusto()%>', '<%=z.getPesoConfezione()%>')">Aggiungi al Carrello</button>
                     </div>
                     <div class="suggests-product-info">

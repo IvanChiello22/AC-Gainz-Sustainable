@@ -97,7 +97,7 @@
 
 <div class="page-container">
     <div class="img-container">
-        <img class="main-img" src="./Immagini/discount-immagine-homepage.png" alt="immagine sconto">
+        <img class="main-img" src="./Immagini/discount-immagine-homepage.png" alt="immagine sconto" loading="lazy">
         <div class="text-overlay">Carburante per L'attività Fisica, dai un occhio ai nostri prodotti scontati</div>
         <div class="prodotti-phrase">In Sconto: </div>
     </div>
@@ -118,7 +118,7 @@
                 <form id="<%=p.getIdProdotto()%>" action="ProductInfo" method="post">
                     <input type="hidden" name="primaryKey" value="<%=p.getIdProdotto()%>">
                 </form>
-                <img src="<%= p.getImmagine() %>" alt="<%= p.getNome() %>" onclick="document.getElementById('<%=p.getIdProdotto()%>').submit();">
+                <img src="<%= p.getImmagine() %>" alt="<%= p.getNome() %>" loading="lazy" onclick="document.getElementById('<%=p.getIdProdotto()%>').submit();">
             </div>
             <div class="product-info">
                 <h2 class="product-info-name"><%= p.getNome() %></h2>
@@ -144,7 +144,7 @@
     </div>
 
     <div class="img-container">
-        <img class="secondary-img" src="./Immagini/seconda-immagine-homepage.jpg" alt="immagine prodotto">
+        <img class="secondary-img" src="./Immagini/seconda-immagine-homepage.jpg" alt="immagine prodotto" loading="lazy">
         <div class="text-overlay">Scopri i Nostri Prodotti In Evidenza</div>
         <div class="prodotti-phrase">In Evidenza: </div>
     </div>
@@ -163,7 +163,7 @@
                 <form id="<%=p.getIdProdotto()%>" action="ProductInfo" method="post">
                     <input type="hidden" name="primaryKey" value="<%=p.getIdProdotto()%>">
                 </form>
-                <img src="<%= p.getImmagine() %>" alt="<%= p.getNome() %>" onclick="document.getElementById('<%=p.getIdProdotto()%>').submit();">
+                <img src="<%= p.getImmagine() %>" alt="<%= p.getNome() %>" loading="lazy" onclick="document.getElementById('<%=p.getIdProdotto()%>').submit();">
             </div>
             <div class="product-info">
                 <h2 class="product-info-name"><%= p.getNome() %></h2>

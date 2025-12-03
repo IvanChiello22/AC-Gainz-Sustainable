@@ -31,6 +31,32 @@
     </servlet-mapping>
      -->
 
+    <filter>
+        <filter-name>MyCacheFilter</filter-name>
+        <filter-class>controller.Filters.CacheControlFilter</filter-class>
+    </filter>
+
+    <filter-mapping>
+        <filter-name>MyCacheFilter</filter-name>
+        <url-pattern>*.css</url-pattern>
+    </filter-mapping>
+    <filter-mapping>
+        <filter-name>MyCacheFilter</filter-name>
+        <url-pattern>*.js</url-pattern>
+    </filter-mapping>
+    <filter-mapping>
+        <filter-name>MyCacheFilter</filter-name>
+        <url-pattern>*.jpg</url-pattern>
+    </filter-mapping>
+    <filter-mapping>
+        <filter-name>MyCacheFilter</filter-name>
+        <url-pattern>*.png</url-pattern>
+    </filter-mapping>
+    <filter-mapping>
+        <filter-name>MyCacheFilter</filter-name>
+        <url-pattern>*.webp</url-pattern>
+    </filter-mapping>
+
     <session-config>
         <session-timeout>30</session-timeout>
     </session-config>

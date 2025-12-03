@@ -123,7 +123,7 @@
             <form id="<%=p.getIdProdotto()%>" action="ProductInfo" method="post">
                 <input type="hidden" name="primaryKey" value="<%=p.getIdProdotto()%>">
             </form>
-            <img src="<%= p.getImmagine() %>" alt="<%= p.getNome() %>" tabindex="0" onkeydown="" onclick="document.getElementById('<%=p.getIdProdotto()%>').submit();">
+            <img src="<%= p.getImmagine() %>" alt="<%= p.getNome() %>" tabindex="0" onkeydown="" loading="lazy" onclick="document.getElementById('<%=p.getIdProdotto()%>').submit();">
         </div>
             <div class="product-info">
             <h2 class="product-info-name"><%= p.getNome() %></h2>

@@ -71,13 +71,13 @@
                 <input type="hidden" name="field" value="password">
                 <label for="current-password">Password Attuale</label>
                 <input type="password" id="current-password" name="current-password" required>
-                <img src="Immagini/hide.png" alt="hide png" onclick="togglePassword('current-password')">
+                <img src="Immagini/hide.png" alt="hide png" loading="lazy" onclick="togglePassword('current-password')">
                 <label for="new-password">Nuova Password</label>
                 <input type="password" id="new-password" name="new-password" required pattern="^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^\w\s]).{8,}$">
-                <img src="Immagini/hide.png" alt="hide png" onclick="togglePassword('new-password')">
+                <img src="Immagini/hide.png" alt="hide png" loading="lazy" onclick="togglePassword('new-password')">
                 <label for="confirm-password">Conferma Nuova Password</label>
                 <input type="password" id="confirm-password" name="confirm-password" required pattern="^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^\w\s]).{8,}$">
-                <img src="Immagini/hide.png" alt="hide png" onclick="togglePassword('confirm-password')">
+                <img src="Immagini/hide.png" alt="hide png" loading="lazy" onclick="togglePassword('confirm-password')">
                 <input type="submit" class="submit" value="Modifica Password">
             </form>
         </div>
