@@ -42,6 +42,10 @@
     </filter-mapping>
     <filter-mapping>
         <filter-name>MyCacheFilter</filter-name>
+        <url-pattern>*.ico</url-pattern>
+    </filter-mapping>
+    <filter-mapping>
+        <filter-name>MyCacheFilter</filter-name>
         <url-pattern>*.js</url-pattern>
     </filter-mapping>
     <filter-mapping>
