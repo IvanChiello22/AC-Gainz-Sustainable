@@ -39,8 +39,8 @@ public class LogoutServlet extends HttpServlet {
         // Salva il carrello della sessione attuale nel DB
         for (final Carrello c : cart) {
             c.setEmailUtente(x.getEmail());
-            carrelloDAO.doSave(c);
         }
+        carrelloDAO.doSaveBatch(cart);
 
         //effettua il logout
         session.removeAttribute("Utente");

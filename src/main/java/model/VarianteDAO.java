@@ -73,6 +73,47 @@ public class VarianteDAO {
         return varianti;
     }
 
+    public List<Variante> doRetrieveAllPaginated(int offset, int limit){
+        final List<Variante> varianti = new ArrayList<>();
+
+        try (final Connection connection = ConPool.getConnection()){
+            final PreparedStatement preparedStatement = connection.prepareStatement("select v.id_variante, v.id_prodotto_variante, v.id_gusto, v.id_confezione, v.prezzo, v.quantità, v.sconto, v.evidenza from variante v LIMIT ? OFFSET ?");
+            preparedStatement.setInt(1, limit);
+            preparedStatement.setInt(2, offset);
+
+            final ResultSet resultSet = preparedStatement.executeQuery();
+            while (resultSet.next()) {
+                final Variante variante = new Variante();
+                variante.setIdVariante(resultSet.getInt("id_variante"));
+                variante.setIdProdotto(resultSet.getString("id_prodotto_variante"));
+                variante.setIdGusto(resultSet.getInt("id_gusto"));
+                variante.setIdConfezione(resultSet.getInt("id_confezione"));
+                variante.setQuantita(resultSet.getInt("quantità"));
+                variante.setPrezzo(resultSet.getFloat("prezzo"));
+                variante.setSconto(resultSet.getInt("sconto"));
+                variante.setEvidenza(resultSet.getBoolean("evidenza"));
+
+                varianti.add(variante);
+            }
+        }catch (final SQLException e){
+            throw new RuntimeException(e);
+        }
+        return varianti;
+    }
+
+    public int countAll() {
+        int count = 0;
+        try (final Connection connection = ConPool.getConnection()) {
+            final PreparedStatement preparedStatement = connection.prepareStatement("SELECT COUNT(*) FROM variante");
+            final ResultSet resultSet = preparedStatement.executeQuery();
+            if (resultSet.next()) {
+                count = resultSet.getInt(1);
+            }
+        } catch (final SQLException e) {
+            throw new RuntimeException(e);
+        }
+        return count;
+    }
 
     public List<Variante> doRetrieveVariantByCriteria(final String idProdotto,final String attribute,final String value) {
         final List<Variante> varianti = new ArrayList<>();

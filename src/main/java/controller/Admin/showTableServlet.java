@@ -44,8 +44,24 @@ public class showTableServlet extends HttpServlet {
                 List<Variante> varianti = new ArrayList<>();
                 final VarianteDAO varianteDAO = new VarianteDAO();
 
-                varianti = varianteDAO.doRetrieveAll();
+                int page = 1;
+                final int limit = 15;
+                if (request.getParameter("page") != null) {
+                    try {
+                        page = Integer.parseInt(request.getParameter("page"));
+                    } catch (final NumberFormatException e) {
+                        page = 1;
+                    }
+                }
+                final int offset = (page - 1) * limit;
+
+                varianti = varianteDAO.doRetrieveAllPaginated(offset, limit);
+                final int totalRecords = varianteDAO.countAll();
+                final int totalPages = (int) Math.ceil((double) totalRecords / limit);
+
                 request.setAttribute("tableVariante", varianti);
+                request.setAttribute("currentPage", page);
+                request.setAttribute("totalPages", totalPages);
 
                 request.getRequestDispatcher("WEB-INF/Admin/tableVariante.jsp").forward(request, response);
             }

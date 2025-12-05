@@ -70,5 +70,28 @@
         </td>
     </tr>
 </table>
+    <div class="pagination" style="text-align: center; margin-top: 20px;">
+        <%
+            Integer currentPage = (Integer) request.getAttribute("currentPage");
+            Integer totalPages = (Integer) request.getAttribute("totalPages");
+            if (currentPage != null && totalPages != null) {
+                if (currentPage > 1) {
+        %>
+        <a href="showTable?tableName=variante&page=<%= currentPage - 1 %>" class="button">Precedente</a>
+        <%
+            }
+        %>
+        <span>Pagina <%= currentPage %> di <%= totalPages %></span>
+        <%
+            if (currentPage < totalPages) {
+        %>
+        <a href="showTable?tableName=variante&page=<%= currentPage + 1 %>" class="button">Successiva</a>
+        <%
+                }
+            }
+        %>
+    </div>
     <% } %>
 </div>
+</body>
+</html>

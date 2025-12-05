@@ -24,6 +24,33 @@ public class CarrelloDAO {
         }
     }
 
+    public void doSaveBatch(final List<Carrello> cartItems) {
+        if (cartItems == null || cartItems.isEmpty()) {
+            return;
+        }
+        try (final Connection con = ConPool.getConnection()) {
+            final String query = "INSERT INTO carrello (email_utente, id_prodotto, id_variante, quantità, prezzo) " +
+                    "VALUES (?, ?, ?, ?, ?)";
+            final PreparedStatement preparedStatement = con.prepareStatement(query);
+
+            con.setAutoCommit(false);
+
+            for (final Carrello c : cartItems) {
+                preparedStatement.setString(1, c.getEmailUtente());
+                preparedStatement.setString(2, c.getIdProdotto());
+                preparedStatement.setInt(3, c.getIdVariante());
+                preparedStatement.setInt(4, c.getQuantita());
+                preparedStatement.setFloat(5, c.getPrezzo());
+                preparedStatement.addBatch();
+            }
+
+            preparedStatement.executeBatch();
+            con.commit();
+        } catch (final SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     public void doRemoveCartByUser(final String emailUtente){
         try (final Connection connection = ConPool.getConnection()){
 
