@@ -54,6 +54,83 @@
             align-items: center;
             justify-content: center;
         }
+        
+        /* Pagination Styles */
+        .pagination-container {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin: 30px 0;
+            padding: 20px;
+        }
+        
+        .pagination {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        
+        .pagination-numbers {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .pagination-btn, .pagination-num {
+            padding: 10px 15px;
+            border: 1px solid #d6d6d6;
+            border-radius: 8px;
+            background-color: #fff;
+            color: #333;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        
+        .pagination-btn:hover:not(.disabled), .pagination-num:hover:not(.active) {
+            background-color: orangered;
+            color: white;
+            border-color: orangered;
+        }
+        
+        .pagination-num.active {
+            background-color: orangered;
+            color: white;
+            border-color: orangered;
+            cursor: default;
+        }
+        
+        .pagination-btn.disabled {
+            background-color: #f0f0f0;
+            color: #aaa;
+            cursor: not-allowed;
+        }
+        
+        .pagination-ellipsis {
+            padding: 10px 5px;
+            color: #666;
+        }
+        
+        .pagination-info {
+            margin-top: 15px;
+            color: #666;
+            font-size: 14px;
+        }
+        
+        @media (max-width: 600px) {
+            .pagination {
+                gap: 5px;
+            }
+            
+            .pagination-btn, .pagination-num {
+                padding: 8px 12px;
+                font-size: 12px;
+            }
+        }
     </style>
 </head>
 <body>
@@ -95,6 +172,8 @@
         <button id="reset-button" onclick="resetProducts()">Reset</button>
     </div>
 </div>
+
+<input type="hidden" id="currentCategory" value="<%= session.getAttribute("categoria") != null ? session.getAttribute("categoria") : "tutto" %>">
 
 <script defer src="JS/genericFilter.js"></script>
 <script defer src="JS/showTastes.js"></script>
@@ -145,6 +224,73 @@
             }
         }
     %>
+</div>
+
+<!-- Pagination Controls -->
+<%
+    Integer currentPage = (Integer) request.getAttribute("currentPage");
+    Integer totalPages = (Integer) request.getAttribute("totalPages");
+    Integer totalProducts = (Integer) request.getAttribute("totalProducts");
+    String categoria = (String) session.getAttribute("categoria");
+    
+    if (currentPage == null) currentPage = 1;
+    if (totalPages == null) totalPages = 1;
+    if (totalProducts == null) totalProducts = 0;
+%>
+
+<div id="pagination-container" class="pagination-container" 
+     data-current-page="<%= currentPage %>" 
+     data-total-pages="<%= totalPages %>" 
+     data-total-products="<%= totalProducts %>">
+    <% if (totalPages > 1) { %>
+        <div class="pagination">
+            <% if (currentPage > 1) { %>
+                <a href="categories?category=<%= categoria != null ? categoria : "tutto" %>&page=<%= currentPage - 1 %>" class="pagination-btn pagination-prev">&laquo; Prev</a>
+            <% } else { %>
+                <span class="pagination-btn pagination-prev disabled">&laquo; Prev</span>
+            <% } %>
+            
+            <div class="pagination-numbers">
+            <%
+                int startPage = Math.max(1, currentPage - 2);
+                int endPage = Math.min(totalPages, currentPage + 2);
+                
+                if (startPage > 1) {
+            %>
+                <a href="categories?category=<%= categoria != null ? categoria : "tutto" %>&page=1" class="pagination-num">1</a>
+                <% if (startPage > 2) { %><span class="pagination-ellipsis">...</span><% } %>
+            <%
+                }
+                
+                for (int i = startPage; i <= endPage; i++) {
+                    if (i == currentPage) {
+            %>
+                <span class="pagination-num active"><%= i %></span>
+            <%
+                    } else {
+            %>
+                <a href="categories?category=<%= categoria != null ? categoria : "tutto" %>&page=<%= i %>" class="pagination-num"><%= i %></a>
+            <%
+                    }
+                }
+                
+                if (endPage < totalPages) {
+                    if (endPage < totalPages - 1) { %><span class="pagination-ellipsis">...</span><% }
+            %>
+                <a href="categories?category=<%= categoria != null ? categoria : "tutto" %>&page=<%= totalPages %>" class="pagination-num"><%= totalPages %></a>
+            <%
+                }
+            %>
+            </div>
+            
+            <% if (currentPage < totalPages) { %>
+                <a href="categories?category=<%= categoria != null ? categoria : "tutto" %>&page=<%= currentPage + 1 %>" class="pagination-btn pagination-next">Next &raquo;</a>
+            <% } else { %>
+                <span class="pagination-btn pagination-next disabled">Next &raquo;</span>
+            <% } %>
+        </div>
+        <p class="pagination-info">Showing <%= ((currentPage - 1) * 8) + 1 %>-<%= Math.min(currentPage * 8, totalProducts) %> of <%= totalProducts %> products</p>
+    <% } %>
 </div>
 
 <div class="centered-div">

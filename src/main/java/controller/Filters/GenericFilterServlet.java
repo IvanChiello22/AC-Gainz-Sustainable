@@ -20,6 +20,7 @@ import java.util.List;
 
 @WebServlet("/genericFilter")
 public class GenericFilterServlet extends HttpServlet {
+
     @Override
     protected void doGet(final HttpServletRequest req,final HttpServletResponse resp) throws ServletException, IOException {
 
@@ -63,11 +64,10 @@ public class GenericFilterServlet extends HttpServlet {
             // Aggiornare la lista di prodotti filtrati nella sessione per visualizzare i gusti tramite showTasteServlet
             session.setAttribute("filteredProducts", filteredProducts);
 
-            // Inviare la risposta JSON al client
+            // Inviare la risposta JSON al client (no pagination for filtered results)
             sendJsonResponse(resp, filteredProducts);
         }
     }
-
 
     //metodo che in base al NameForm crea una lista di prodotti che rispettano tale NameForm
     private void handleNameForm(final String nameForm,final HttpServletRequest request,final HttpServletResponse response,final HttpSession session) throws ServletException, IOException, SQLException {
@@ -81,7 +81,12 @@ public class GenericFilterServlet extends HttpServlet {
         }else {
             products = prodottoDAO.filterProducts("", "", "", "", nameForm);
         }
+
+        // No pagination for search results - show all products
         request.setAttribute("originalProducts", products);
+        request.setAttribute("currentPage", 1);
+        request.setAttribute("totalPages", 1);
+        request.setAttribute("totalProducts", products.size());
         session.setAttribute("searchBarName", nameForm);
         session.setAttribute("filteredProducts", products);
 
@@ -89,8 +94,8 @@ public class GenericFilterServlet extends HttpServlet {
     }
 
 
-    // Metodo per inviare la risposta JSON al client
-    private void sendJsonResponse(final HttpServletResponse resp,final  List<Prodotto> resultProducts) throws IOException {
+    // Metodo per inviare la risposta JSON al client (array di prodotti senza paginazione)
+    private void sendJsonResponse(final HttpServletResponse resp, final List<Prodotto> resultProducts) throws IOException {
         resp.setContentType("application/json");
         final PrintWriter out = resp.getWriter();
         final JSONArray jsonArray = new JSONArray();

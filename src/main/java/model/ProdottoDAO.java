@@ -104,22 +104,39 @@ public class ProdottoDAO {
             filterOnEvidence = false;
         }
 
+        // Check if we have actual variant filters applied (weight, taste, or evidence)
+        boolean hasVariantFilters = (weightFilter != null && !weightFilter.isBlank()) ||
+                                    (tasteFilter != null && !tasteFilter.isBlank()) ||
+                                    filterOnEvidence;
+
         // Fetch and set the cheapest variant for the products
         filteredProducts.removeIf((final var prodotto) -> {
             Variante cheapestVariante = null;
-            try {
-                cheapestVariante = varianteDAO.doRetrieveCheapestFilteredVarianteByIdProdotto(
-                        prodotto.getIdProdotto(), weightFilter, tasteFilter, filterOnEvidence);
-            } catch (final SQLException e) {
-                throw new RuntimeException(e);
+            
+            if (hasVariantFilters) {
+                // Use filtered variant retrieval only when filters are applied
+                try {
+                    cheapestVariante = varianteDAO.doRetrieveCheapestFilteredVarianteByIdProdotto(
+                            prodotto.getIdProdotto(), weightFilter, tasteFilter, filterOnEvidence);
+                } catch (final SQLException e) {
+                    throw new RuntimeException(e);
+                }
+            } else {
+                // No variant filters - use the standard cheapest variant method (same as initial page load)
+                cheapestVariante = varianteDAO.doRetrieveCheapestVariant(prodotto.getIdProdotto());
+                // Check if variant is valid (has an ID set)
+                if (cheapestVariante != null && cheapestVariante.getIdVariante() == 0) {
+                    cheapestVariante = null;
+                }
             }
+            
             if (cheapestVariante != null) {
                 final List<Variante> varianti = new ArrayList<>();
                 varianti.add(cheapestVariante);
                 prodotto.setVarianti(varianti);
                 return false; // Keep the product
             }
-            return true; // Remove the product
+            return true; // Remove the product only if no variant found
         });
 
         // Handle sorting
