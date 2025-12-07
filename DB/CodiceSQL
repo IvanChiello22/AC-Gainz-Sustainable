@@ -49,7 +49,7 @@ create table if not exists variante(
   `quantità` int check (`quantità` >= 0),
   sconto int check (sconto >= 0),
   evidenza tinyint(1) default 0,
-
+  
   foreign key (id_prodotto_variante) references prodotto(id_prodotto) on update cascade on delete cascade,
   foreign key (id_gusto) references gusto(id_gusto) on update cascade on delete cascade,
   foreign key (id_confezione) references confezione(id_confezione) on update cascade on delete cascade
@@ -62,7 +62,7 @@ create table if not exists carrello(
   id_variante int not null,
   `quantità` int not null check (`quantità` > 0),
   prezzo float not null check (prezzo >= 0),
-
+  
   primary key(email_utente, id_prodotto, id_variante),
   foreign key(email_utente) references utente(email) on update cascade on delete cascade,
   foreign key(id_prodotto) references prodotto(id_prodotto) on update cascade on delete cascade,
@@ -93,7 +93,7 @@ CREATE TABLE IF NOT EXISTS dettaglio_ordine(
 )
 ;
 
-DELIMITER ;
+DELIMITER $$
 
 CREATE TRIGGER updatePriceDettaglioOrdine
 BEFORE INSERT ON dettaglio_ordine
@@ -111,7 +111,7 @@ BEGIN
     -- Assegniamo il prezzo calcolato alla riga che sta per essere inserita
     SET NEW.prezzo = price;
 
-END;
+END$$
 
 
 CREATE TRIGGER updatePriceDettaglioOrdineBeforeUpdate
@@ -129,7 +129,7 @@ BEGIN
 
     -- Assegniamo il prezzo calcolato alla riga che sta per essere aggiornata
     SET NEW.prezzo = price;
-END;
+END$$
 
 
 CREATE TRIGGER aggiorna_prezzo_ordine_onUpdate
@@ -149,7 +149,7 @@ BEGIN
     UPDATE ordine
     SET totale = total
     WHERE id_ordine = NEW.id_ordine;  -- Utilizziamo l'id_ordine della nuova riga inserita
-END;
+END$$
 
 
 CREATE TRIGGER aggiorna_prezzo_ordine
@@ -169,7 +169,7 @@ BEGIN
     UPDATE ordine
     SET totale = total
     WHERE id_ordine = NEW.id_ordine;  -- Utilizziamo l'id_ordine della nuova riga inserita
-END;
+END$$
 
 
 
@@ -206,7 +206,7 @@ BEGIN
     WHERE o.id_ordine IN (
         SELECT id_ordine FROM dettaglio_ordine WHERE id_prodotto = OLD.id_prodotto
     );
-END;
+END$$
 
 CREATE TRIGGER aggiornaQuantitaVariante
 AFTER INSERT ON dettaglio_ordine
@@ -222,7 +222,7 @@ BEGIN
     UPDATE variante
     SET `quantità` = `quantità` - q
     WHERE id_variante = NEW.id_variante;
-END;
+END$$
 
 DELIMITER ;
 
@@ -248,7 +248,7 @@ CREATE INDEX idx_variante_prezzo_sconto_evidenza ON variante((prezzo * (1 - scon
 
 
 
-INSERT INTO Progetto_TSW_Dependability.utente (email, password, nome, cognome, codice_fiscale, data_di_nascita, indirizzo, numero_di_cellulare, poteri) VALUES ('raffaelecoppola603@gmail.com', '2645b14e38601e8675c430e5eccfb9bf5e5462bf', 'Raffaele', 'Coppola', 'CPPRFL03T28H703E', '2003-12-28', 'Via Giovanni Verga, 3', '3896630640', 1);
+INSERT INTO Progetto_TSW_Dependability.utente (email, password, nome, cognome, codice_fiscale, data_di_nascita, indirizzo, numero_di_cellulare, poteri) VALUES ('luigiauriemma021@gmail.com', '35606aa3534faf35c50f97cbbf387d78f5063cf9', 'Luigi', 'Auriemma', 'RMMLGU03E21H860C', '2003-05-21', 'Via Raggi, 14', '3896630640', 1);
 
 
 INSERT INTO Progetto_TSW_Dependability.prodotto (id_prodotto, nome, descrizione, categoria, immagine, calorie, carboidrati, proteine, grassi) VALUES ('B001', 'Barretta proteica ', 'Una barretta proteica gourmet che offre il massimo in termini di sapore, consistenza e nutrizione. Ogni barretta è ricca di 20 g di proteine e a basso contenuto di zuccheri, rendendola perfetta per spuntini in movimento o come fonte di nutrimento extra tra i pasti.', 'barrette', 'Immagini/2_barrettaCioccCaramell.png', 361, 33, 32, 13);
@@ -720,11 +720,11 @@ INSERT INTO Progetto_TSW_Dependability.variante (id_variante, id_prodotto_varian
 (399, 'P005', 24, 4, 34.00, 35, 10, 0),
 (400, 'P005', 23, 4, 34.00, 30, 10, 0);
 
-INSERT INTO Progetto_TSW_Dependability.ordine (id_ordine, email_utente, data, stato, totale, descrizione) VALUES (1, 'raffaelecoppola603@gmail.com', '2024-07-17', 'in esecuzione', 209.25, null);
-INSERT INTO Progetto_TSW_Dependability.ordine (id_ordine, email_utente, data, stato, totale, descrizione) VALUES (2, 'raffaelecoppola603@gmail.com', '2024-07-18', 'in esecuzione', 123.75, null);
-INSERT INTO Progetto_TSW_Dependability.ordine (id_ordine, email_utente, data, stato, totale, descrizione) VALUES (3, 'raffaelecoppola603@gmail.com', '2024-07-18', 'in esecuzione', 424.46, null);
-INSERT INTO Progetto_TSW_Dependability.ordine (id_ordine, email_utente, data, stato, totale, descrizione) VALUES (4, 'raffaelecoppola603@gmail.com', '2024-07-18', 'in esecuzione', 135, null);
-INSERT INTO Progetto_TSW_Dependability.ordine (id_ordine, email_utente, data, stato, totale, descrizione) VALUES (5, 'raffaelecoppola603@gmail.com', '2024-07-19', 'in esecuzione', 105.4, null);
+INSERT INTO Progetto_TSW_Dependability.ordine (id_ordine, email_utente, data, stato, totale, descrizione) VALUES (1, 'luigiauriemma021@gmail.com', '2024-07-17', 'in esecuzione', 209.25, null);
+INSERT INTO Progetto_TSW_Dependability.ordine (id_ordine, email_utente, data, stato, totale, descrizione) VALUES (2, 'luigiauriemma021@gmail.com', '2024-07-18', 'in esecuzione', 123.75, null);
+INSERT INTO Progetto_TSW_Dependability.ordine (id_ordine, email_utente, data, stato, totale, descrizione) VALUES (3, 'luigiauriemma021@gmail.com', '2024-07-18', 'in esecuzione', 424.46, null);
+INSERT INTO Progetto_TSW_Dependability.ordine (id_ordine, email_utente, data, stato, totale, descrizione) VALUES (4, 'luigiauriemma021@gmail.com', '2024-07-18', 'in esecuzione', 135, null);
+INSERT INTO Progetto_TSW_Dependability.ordine (id_ordine, email_utente, data, stato, totale, descrizione) VALUES (5, 'luigiauriemma021@gmail.com', '2024-07-19', 'in esecuzione', 105.4, null);
 
 
 

@@ -1,0 +1,9 @@
+.git
+target
+build
+out
+node_modules
+*.iml
+.idea
+*.log
+dependency-reduced-pom.xml
