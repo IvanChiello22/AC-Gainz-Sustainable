@@ -7,10 +7,10 @@ import java.io.IOException;
 public class CacheControlFilter implements Filter {
 
     @Override
-    public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
+    public void doFilter(final ServletRequest request, final ServletResponse response, final FilterChain chain)
             throws IOException, ServletException {
 
-        HttpServletResponse httpResponse = (HttpServletResponse) response;
+        final HttpServletResponse httpResponse = (HttpServletResponse) response;
 
         // Imposta la cache a 10 giorni (864000 secondi)
         httpResponse.setHeader("Cache-Control", "public, max-age=864000");
@@ -21,7 +21,7 @@ public class CacheControlFilter implements Filter {
 
     // Metodi di init e destroy vuoti (obbligatori per alcune versioni vecchie, utili per sicurezza)
     @Override
-    public void init(FilterConfig filterConfig) throws ServletException {}
+    public void init(final FilterConfig filterConfig) throws ServletException {}
     @Override
     public void destroy() {}
 }

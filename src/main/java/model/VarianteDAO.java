@@ -73,7 +73,7 @@ public class VarianteDAO {
         return varianti;
     }
 
-    public List<Variante> doRetrieveAllPaginated(int offset, int limit){
+    public List<Variante> doRetrieveAllPaginated(final int offset, final int limit){
         final List<Variante> varianti = new ArrayList<>();
 
         try (final Connection connection = ConPool.getConnection()){

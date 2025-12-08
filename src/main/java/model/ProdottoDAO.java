@@ -51,7 +51,7 @@ public class ProdottoDAO {
     public List<Prodotto> filterProducts(final String category,final String sortingFilter,final String weightFilter,final String tasteFilter,final String nameFilter) throws SQLException {
         final List<Prodotto> filteredProducts = new ArrayList<>();
         final VarianteDAO varianteDAO = new VarianteDAO();
-        boolean filterOnEvidence;
+        final boolean filterOnEvidence;
 
 
         System.out.println("nameFilterDAO: " + nameFilter);
@@ -105,7 +105,7 @@ public class ProdottoDAO {
         }
 
         // Check if we have actual variant filters applied (weight, taste, or evidence)
-        boolean hasVariantFilters = (weightFilter != null && !weightFilter.isBlank()) ||
+        final boolean hasVariantFilters = (weightFilter != null && !weightFilter.isBlank()) ||
                                     (tasteFilter != null && !tasteFilter.isBlank()) ||
                                     filterOnEvidence;
 

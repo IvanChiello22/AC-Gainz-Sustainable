@@ -40,16 +40,16 @@ public class CategoriesServlet extends HttpServlet {
 
         // Pagination logic
         int currentPage = 1;
-        String pageParam = req.getParameter("page");
+        final String pageParam = req.getParameter("page");
         if (pageParam != null && !pageParam.isEmpty()) {
             try {
                 currentPage = Integer.parseInt(pageParam);
-            } catch (NumberFormatException e) {
+            } catch (final NumberFormatException e) {
                 currentPage = 1;
             }
         }
 
-        int totalProducts = productsByCriteria.size();
+        final int totalProducts = productsByCriteria.size();
         int totalPages = (int) Math.ceil((double) totalProducts / PRODUCTS_PER_PAGE);
         if (totalPages == 0) totalPages = 1;
         
@@ -57,8 +57,8 @@ public class CategoriesServlet extends HttpServlet {
         if (currentPage < 1) currentPage = 1;
         if (currentPage > totalPages) currentPage = totalPages;
 
-        int startIndex = (currentPage - 1) * PRODUCTS_PER_PAGE;
-        int endIndex = Math.min(startIndex + PRODUCTS_PER_PAGE, totalProducts);
+        final int startIndex = (currentPage - 1) * PRODUCTS_PER_PAGE;
+        final int endIndex = Math.min(startIndex + PRODUCTS_PER_PAGE, totalProducts);
 
         // Handle empty list case
         List<Prodotto> paginatedProducts;
