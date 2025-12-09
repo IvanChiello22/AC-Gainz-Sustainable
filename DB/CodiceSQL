@@ -334,7 +334,7 @@ INSERT INTO Progetto_TSW_Dependability.confezione (id_confezione, peso) VALUES (
 INSERT INTO Progetto_TSW_Dependability.confezione (id_confezione, peso) VALUES (15, 5000);
 
 
-INSERT INTO Progetto_TSW_Dependability.variante (id_variante, id_prodotto_variante, id_gusto, id_confezione, prezzo, `quantità`, sconto, evidenza) VALUES (1, 'P001', 1, 4, 35, 138, 15, 1);
+INSERT INTO Progetto_TSW_Dependability.variante (id_variante, id_prodotto_variante, id_gusto, id_confezione, prezzo, `quantità`, sconto, evidenza) VALUES (1, 'P001', 1, 4, 35, 100000, 15, 1);
 INSERT INTO Progetto_TSW_Dependability.variante (id_variante, id_prodotto_variante, id_gusto, id_confezione, prezzo, `quantità`, sconto, evidenza) VALUES (2, 'P002', 1, 5, 35, 99, 10, 0);
 INSERT INTO Progetto_TSW_Dependability.variante (id_variante, id_prodotto_variante, id_gusto, id_confezione, prezzo, `quantità`, sconto, evidenza) VALUES (3, 'P003', 1, 6, 45, 100, 10, 1);
 INSERT INTO Progetto_TSW_Dependability.variante (id_variante, id_prodotto_variante, id_gusto, id_confezione, prezzo, `quantità`, sconto, evidenza) VALUES (4, 'P004', 1, 4, 20, 197, 0, 1);
