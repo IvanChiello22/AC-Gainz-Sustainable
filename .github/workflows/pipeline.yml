@@ -80,12 +80,12 @@ jobs:
       - name: Run EcoIndex Analysis
         run: |
           mkdir -p reports/ecoindex
-          chmod 777 reports/ecoindex
 
-          echo "Y" | docker run -i --rm --network host \
-            -v $(pwd)/reports/ecoindex:/app/reports \
-            vvatelot/ecoindex-cli \
-            ecoindex-cli analyze --url http://localhost:8080 --output-file /app/reports/ecoindex.json
+          pip install ecoindex-python
+
+          pip install selenium webdriver-manager
+
+          ecoindex-cli analyze --url http://localhost:8080 --output-file reports/ecoindex/ecoindex.json
 
       # 8. Salvataggio Report (Fondamentale per vedere i risultati)
       - name: Upload Test Reports
