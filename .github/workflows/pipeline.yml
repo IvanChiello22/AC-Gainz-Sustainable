@@ -58,7 +58,7 @@ jobs:
             justb4/jmeter \
             -n -t Scenario_A_Anonymous.jmx -l result_A.jtl
 
-      # 4. GreenIT Analysis - COSTRUITA E CORRETTA
+      # 4. GreenIT Analysis
       - name: Build & Run GreenIT Analysis
         run: |
           git clone https://github.com/cnumr/GreenIT-Analysis-cli.git greenit-repo
@@ -74,7 +74,7 @@ jobs:
           docker run --rm --network host \
             -v $(pwd):/scan \
             local-greenit-analysis \
-            greenit analyse /scan/urls_to_scan.yaml /scan/reports/greenit
+            greenit analyse /scan/urls_to_scan.yaml /scan/reports/greenit/report.html
 
       # 7. EcoIndex (Score Sostenibilità)
       - name: Run EcoIndex Analysis
