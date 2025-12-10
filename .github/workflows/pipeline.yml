@@ -31,12 +31,10 @@ jobs:
 
       # 3. Micro-benchmark sul codice (JMH)
       - name: Run JMH Benchmarks
-        # Esegue la classe runner JMH definita nel progetto
         run: mvn exec:java -Dexec.mainClass=benchmark.JmhRunner -Dexec.classpathScope=test
 
-      # 4. Setup Ambiente di Integrazione (Applicazione live)
+      # 4. Setup Ambiente di Integrazione
       - name: Set up Docker Compose
-        # Avvia l'app + eventuali DB definiti nel docker-compose.yml
         run: docker compose up -d --build
 
       - name: Wait for Application
@@ -47,66 +45,56 @@ jobs:
 
       # 5. Load Testing (JMeter)
       - name: Run JMeter Tests
-        # Monta la cartella locale 'jmeter' dentro il container per leggere il .jmx e salvare il report
         run: |
-          # Assicurati che la cartella 'jmeter' esista e sia scrivibile
           chmod -R 777 jmeter || true
-
           docker run --rm --network host \
             -v ${{ github.workspace }}/jmeter:/jmeter \
             -w /jmeter \
             justb4/jmeter \
             -n -t Scenario_A_Anonymous.jmx -l result_A.jtl
 
-      # 4. GreenIT Analysis
+      # 6. GreenIT Analysis (Include EcoIndex Score nel report HTML)
       - name: Build & Run GreenIT Analysis
         run: |
+          # Clone e build da sorgente (più sicuro)
           git clone https://github.com/cnumr/GreenIT-Analysis-cli.git greenit-repo
           cd greenit-repo
           docker build -t local-greenit-analysis .
           cd ..
 
+          # Creazione file di configurazione
           echo "- url: http://localhost:8080" > urls_to_scan.yaml
 
+          # Preparazione cartella output
           mkdir -p reports/greenit
           chmod 777 reports/greenit
 
+          # Esecuzione analisi
           docker run --rm --network host \
             -v $(pwd):/scan \
             local-greenit-analysis \
             greenit analyse /scan/urls_to_scan.yaml /scan/reports/greenit/report.html
 
-      # 6. EcoIndex Analysis (SOLUZIONE: Tripletta di versioni compatibili)
-      - name: Run EcoIndex Analysis
-        run: |
-          mkdir -p reports/ecoindex
-
-          pip install "pydantic<2.0.0" "ecoindex-scraper<3.0.0" "ecoindex-cli<2.20.0" selenium webdriver-manager
-
-          ecoindex-cli analyze --url http://localhost:8080 --output-file reports/ecoindex/ecoindex.json --no-interaction
-
-      # 8. Salvataggio Report (Fondamentale per vedere i risultati)
+      # 7. Salvataggio Report
       - name: Upload Test Reports
         uses: actions/upload-artifact@v4
-        if: always() # Esegui anche se i test falliscono per vedere cosa è successo
+        if: always()
         with:
           name: green-performance-reports
           path: |
             jmeter/result_A.jtl
             reports/
-            ecoindex.json
 
-      # 9. Pulizia
+      # 8. Pulizia
       - name: Stop Docker Compose
         if: always()
         run: docker compose down
 
   # --- JOB 2: DELIVERY SU DOCKER HUB (CD) ---
   build_and_push_docker:
-    # Parte solo se 'integration-and-sustainability' è verde
     needs: integration-and-sustainability
     runs-on: ubuntu-latest
-    # Esegue il push solo se siamo sul branch main (o master), non sulle PR
+    # Deploy solo su merge su main/master
     if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'
 
     steps:
