@@ -31,13 +31,13 @@ jobs:
 
       # 3. Micro-benchmark sul codice (JMH)
       - name: Run JMH Benchmarks
-        # Esegue la classe runner JMH definita nel tuo progetto
+        # Esegue la classe runner JMH definita nel progetto
         run: mvn exec:java -Dexec.mainClass=benchmark.JmhRunner -Dexec.classpathScope=test
 
       # 4. Setup Ambiente di Integrazione (Applicazione live)
       - name: Set up Docker Compose
         # Avvia l'app + eventuali DB definiti nel docker-compose.yml
-        run: docker-compose up -d --build
+        run: docker compose up -d --build
 
       - name: Wait for Application
         run: |
@@ -89,12 +89,11 @@ jobs:
       # 9. Pulizia
       - name: Stop Docker Compose
         if: always()
-        run: docker-compose down
+        run: docker compose down
 
   # --- JOB 2: DELIVERY SU DOCKER HUB (CD) ---
   build_and_push_docker:
-    # QUESTO È IL PUNTO CHIAVE:
-    # Parte solo se 'integration-and-sustainability' è verde (successo)
+    # Parte solo se 'integration-and-sustainability' è verde
     needs: integration-and-sustainability
     runs-on: ubuntu-latest
     # Esegue il push solo se siamo sul branch main (o master), non sulle PR
@@ -113,7 +112,6 @@ jobs:
         id: meta
         uses: docker/metadata-action@v5
         with:
-          # Inserisci qui il nome corretto della tua immagine su Docker Hub
           images: ${{ secrets.DOCKERHUB_USERNAME }}/ac-gainz-sustainability
 
       - name: Build and push Docker image
