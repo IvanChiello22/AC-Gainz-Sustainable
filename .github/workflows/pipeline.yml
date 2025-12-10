@@ -76,16 +76,18 @@ jobs:
             local-greenit-analysis \
             greenit analyse /scan/urls_to_scan.yaml /scan/reports/greenit/report.html
 
-      # 7. EcoIndex (Score Sostenibilità)
+      # 6. EcoIndex Analysis (SOLUZIONE PYTHON NATIVA)
       - name: Run EcoIndex Analysis
         run: |
           mkdir -p reports/ecoindex
 
-          pip install ecoindex-python
+          pip install "pydantic<2.0.0"
+
+          pip install ecoindex-cli
 
           pip install selenium webdriver-manager
 
-          ecoindex-cli analyze --url http://localhost:8080 --output-file reports/ecoindex/ecoindex.json
+          ecoindex-cli analyze --url http://localhost:8080 --output-file reports/ecoindex/ecoindex.json --no-interaction
 
       # 8. Salvataggio Report (Fondamentale per vedere i risultati)
       - name: Upload Test Reports
