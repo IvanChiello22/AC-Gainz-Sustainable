@@ -58,7 +58,7 @@ jobs:
             justb4/jmeter \
             -n -t Scenario_A_Anonymous.jmx -l result_A.jtl
 
-      # 4. GreenIT Analysis
+      # 4. GreenIT Analysis - COSTRUITA E CORRETTA
       - name: Build & Run GreenIT Analysis
         run: |
           git clone https://github.com/cnumr/GreenIT-Analysis-cli.git greenit-repo
@@ -66,7 +66,7 @@ jobs:
           docker build -t local-greenit-analysis .
           cd ..
 
-          echo "- http://localhost:8080" > urls_to_scan.yaml
+          echo "- url: http://localhost:8080" > urls_to_scan.yaml
 
           mkdir -p reports/greenit
           chmod 777 reports/greenit
