@@ -76,11 +76,12 @@ jobs:
             local-greenit-analysis \
             greenit analyse /scan/urls_to_scan.yaml /scan/reports/greenit/report.html
 
+      # 6. EcoIndex Analysis (SOLUZIONE: Tripletta di versioni compatibili)
       - name: Run EcoIndex Analysis
         run: |
           mkdir -p reports/ecoindex
 
-          pip install ecoindex-cli==2.23.0 selenium webdriver-manager
+          pip install "pydantic<2.0.0" "ecoindex-scraper<3.0.0" "ecoindex-cli<2.20.0" selenium webdriver-manager
 
           ecoindex-cli analyze --url http://localhost:8080 --output-file reports/ecoindex/ecoindex.json --no-interaction
 
