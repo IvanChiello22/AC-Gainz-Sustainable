@@ -64,7 +64,7 @@ jobs:
         run: |
           docker run --rm --network host \
             -v $(pwd):/home/chrome/reports \
-            greenit/greenit-analysis-cli \
+            jpreisner/greenit-analysis-cli:latest \
             analyze --url http://localhost:8080 --output-dir /home/chrome/reports
 
       # 7. EcoIndex (Score Sostenibilità)
