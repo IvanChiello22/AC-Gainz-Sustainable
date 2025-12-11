@@ -33,14 +33,14 @@ jobs:
       - name: Run Unit Tests
         run: mvn test
 
-      # --- STEP 3: SONARQUBE + PLUGIN CREEDENGO (Java) ---
+      # --- STEP 3: SONARQUBE + PLUGIN CREEDENGO (PASSWORD FIX) ---
       - name: Setup & Start SonarQube with Creedengo Rules
         run: |
           echo "Scaricamento Plugin Creedengo (Java)..."
           mkdir -p sonar-plugins
           wget -O sonar-plugins/creedengo-java.jar https://github.com/green-code-initiative/creedengo-java/releases/download/2.1.1/creedengo-java-plugin-2.1.1.jar
 
-          echo "Avvio Container SonarQube..."
+          echo "🐳 Avvio Container SonarQube..."
           docker run -d --name sonarqube \
             -p 9000:9000 \
             -v $(pwd)/sonar-plugins:/opt/sonarqube/extensions/plugins \
@@ -51,20 +51,24 @@ jobs:
           echo "SonarQube è pronto!"
 
           echo "Configurazione..."
-          curl -u admin:admin -X POST "http://localhost:9000/api/users/change_password?login=admin&previousPassword=admin&password=Administrator1234"
 
-          # 2. Attivazione Profilo Green
-          curl -u admin:Administrator1234 -X POST "http://localhost:9000/api/qualityprofiles/set_default?language=java&qualityProfile=EcoCode%20Way" || true
+          curl -u admin:admin -X POST "http://localhost:9000/api/users/change_password" \
+            -d "login=admin" \
+            -d "previousPassword=admin" \
+            -d "password=Administrator1234!"
+
+          # 2. Attivazione Profilo Green 
+          curl -u 'admin:Administrator1234!' -X POST "http://localhost:9000/api/qualityprofiles/set_default?language=java&qualityProfile=EcoCode%20Way" || true
 
       - name: Run SonarQube Analysis
-        # env rimosso per pulizia
+        # Anche qui usiamo la nuova password Administrator1234!
         run: |
           mvn org.sonarsource.scanner.maven:sonar-maven-plugin:sonar \
             -Dsonar.projectKey=ProgettoSustainability2 \
             -Dsonar.projectName='ProgettoSustainability2' \
             -Dsonar.host.url=http://localhost:9000 \
             -Dsonar.login=admin \
-            -Dsonar.password=Administrator1234 \
+            -Dsonar.password='Administrator1234!' \
             -Dsonar.qualitygate.wait=true
 
       # 4. Micro-benchmark (JMH)
