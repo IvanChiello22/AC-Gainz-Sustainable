@@ -1,0 +1,140 @@
+name: Green CI/CD Pipeline (All-in-One)
+
+on:
+  push:
+    branches: ["main", "master"]
+  pull_request:
+    branches: ["main", "master"]
+
+jobs:
+  # --- JOB 1: INTEGRATION, TESTING & SUSTAINABILITY (CI) ---
+  integration-and-sustainability:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      # 1. Setup Base
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          java-version: "21"
+          distribution: "temurin"
+          cache: "maven"
+
+      # 2. Build
+      - name: Build with Maven
+        run: mvn clean install -DskipTests
+
+      - name: Run JMH Benchmarks
+        # Usiamo il Main standard di JMH forzando 0 fork (-f 0) per evitare problemi di classpath
+        run: mvn exec:java -Dexec.mainClass="org.openjdk.jmh.Main" -Dexec.classpathScope=test -Dexec.args="-f 0"
+
+      # 5. Setup Ambiente Docker (App Locale)
+      - name: Set up Docker Compose
+        run: docker compose up -d --build
+
+      - name: Wait for Application
+        run: |
+          echo "Waiting for app on localhost:8080..."
+          timeout 60s bash -c 'until curl -s http://localhost:8080 > /dev/null; do sleep 5; done'
+          echo "App is up!"
+
+      # 6. Load Testing (JMeter) - Multi Scenario
+      - name: Run JMeter Tests
+        run: |
+          chmod -R 777 jmeter || true
+
+          echo "Eseguo Scenario A..."
+          docker run --rm --network host \
+            -v ${{ github.workspace }}/jmeter:/jmeter \
+            -w /jmeter \
+            justb4/jmeter \
+            -n -t Scenario_A_Anonymous.jmx -l result_A.jtl
+
+          echo "Eseguo Scenario B..."
+          docker run --rm --network host \
+            -v ${{ github.workspace }}/jmeter:/jmeter \
+            -w /jmeter \
+            justb4/jmeter \
+            -n -t Scenario_B_Registered.jmx -l result_B.jtl
+
+          echo "Eseguo Scenario C..."
+          docker run --rm --network host \
+            -v ${{ github.workspace }}/jmeter:/jmeter \
+            -w /jmeter \
+            justb4/jmeter \
+            -n -t Scenario_C_CheckoutStress.jmx -l result_C.jtl
+
+          echo "Eseguo Scenario D..."
+          docker run --rm --network host \
+            -v ${{ github.workspace }}/jmeter:/jmeter \
+            -w /jmeter \
+            justb4/jmeter \
+            -n -t Scenario_D_CartStress.jmx -l result_D.jtl
+
+      # 7. GreenIT Analysis
+      - name: Build & Run GreenIT Analysis
+        run: |
+          git clone https://github.com/cnumr/GreenIT-Analysis-cli.git greenit-repo
+          cd greenit-repo
+          docker build -t local-greenit-analysis .
+          cd ..
+
+          echo "- url: http://localhost:8080" > urls_to_scan.yaml
+          mkdir -p reports/greenit
+          chmod 777 reports/greenit
+
+          docker run --rm --network host \
+            -v $(pwd):/scan \
+            local-greenit-analysis \
+            greenit analyse /scan/urls_to_scan.yaml /scan/reports/greenit/report.html
+
+      # 8. Salvataggio Report
+      - name: Upload Test Reports
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: green-performance-reports
+          path: |
+            jmeter/*.jtl
+            reports/
+
+      # 9. Pulizia
+      - name: Stop Docker Compose
+        if: always()
+        run: docker compose down
+
+  # --- JOB 2: DELIVERY SU DOCKER HUB (CD) ---
+  build_and_push_docker:
+    needs: integration-and-sustainability
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Extract Docker metadata
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ secrets.DOCKERHUB_USERNAME }}/ac-gainz-sustainability
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ./Dockerfile
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
