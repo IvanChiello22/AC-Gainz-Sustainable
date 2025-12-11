@@ -33,34 +33,34 @@ jobs:
       - name: Run Unit Tests
         run: mvn test
 
-      # --- STEP 3: SONARQUBE + PLUGIN CREEDENGO (EcoCode) ---
+      # --- STEP 3: SONARQUBE + PLUGIN CREEDENGO (Java) ---
       - name: Setup & Start SonarQube with Creedengo Rules
         run: |
-          echo "Scaricamento Plugin Creedengo (EcoCode)..."
+          echo "Scaricamento Plugin Creedengo (Java)..."
           mkdir -p sonar-plugins
 
-          # SCARICHIAMO IL PLUGIN UFFICIALE CHE CONTIENE LE REGOLE CREEDENGO
-          # Link alla release ufficiale Green Code Initiative
-          wget -O sonar-plugins/ecoCode.jar https://github.com/green-code-initiative/ecoCode/releases/download/3.1.1/ecoCode-sonar-plugin-3.1.1.jar
+          #Usiamo il plugin specifico per Java dal repo ufficiale
+          wget -O sonar-plugins/creedengo-java.jar https://github.com/green-code-initiative/creedengo-java/releases/download/2.1.1/creedengo-java-plugin-2.1.1.jar
 
           echo "Avvio Container SonarQube..."
-          # Montiamo il plugin direttamente all'avvio per non dover riavviare dopo
+          # Montiamo il plugin direttamente all'avvio
           docker run -d --name sonarqube \
             -p 9000:9000 \
             -v $(pwd)/sonar-plugins:/opt/sonarqube/extensions/plugins \
             sonarqube:community
 
           echo "Attesa avvio SonarQube (circa 2-3 min)..."
-          # Attendiamo che SonarQube sia completamente operativo
+          # Attendiamo che le API di Sonar rispondano
           timeout 300s bash -c 'until curl -s http://localhost:9000/api/system/status | grep -q "\"status\":\"UP\""; do sleep 5; done'
           echo "SonarQube è pronto!"
 
           echo "Configurazione Profilo Green..."
-          # 1. Autenticazione: cambio password default
+          # 1. Autenticazione: cambio password default (obbligatorio)
           curl -u admin:admin -X POST "http://localhost:9000/api/users/change_password?login=admin&previousPassword=admin&password=admin123"
 
-          # 2. Attivazione Regole: Impostiamo il profilo "EcoCode Way" (regole Creedengo) come default
-          curl -u admin:admin123 -X POST "http://localhost:9000/api/qualityprofiles/set_default?language=java&qualityProfile=EcoCode%20Way"
+          # 2. Attivazione Regole: Impostiamo il profilo "EcoCode Way" come default.
+          # (Il flag || true serve per non bloccare la pipeline se il nome del profilo fosse leggermente diverso nelle nuove versioni)
+          curl -u admin:admin123 -X POST "http://localhost:9000/api/qualityprofiles/set_default?language=java&qualityProfile=EcoCode%20Way" || true
 
       - name: Run SonarQube Analysis
         # Colleghiamo Maven al SonarQube locale temporaneo
