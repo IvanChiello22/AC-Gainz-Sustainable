@@ -10,14 +10,14 @@ jobs:
   # --- JOB 1: INTEGRATION, TESTING & SUSTAINABILITY (CI) ---
   integration-and-sustainability:
     runs-on: ubuntu-latest
-    timeout-minutes: 20 # SonarQube è lento ad avviarsi
+    timeout-minutes: 20
 
     steps:
       # 1. Setup Base
       - name: Checkout code
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0
+          fetch-depth: 0 # Importante per Sonar
 
       - name: Set up JDK 21
         uses: actions/setup-java@v4
@@ -26,50 +26,44 @@ jobs:
           distribution: "temurin"
           cache: "maven"
 
-      # 2. Build e Unit Test
+      # 2. Build e Unit Test (Creano la cartella target/ con i report)
       - name: Build with Maven
         run: mvn clean install -DskipTests
 
       - name: Run Unit Tests
         run: mvn test
 
-      # --- STEP 3: SONARQUBE + PLUGIN CREEDENGO (Java) ---
+      # --- STEP 3: SONARQUBE + PLUGIN CREEDENGO (Setup Dinamico) ---
       - name: Setup & Start SonarQube with Creedengo Rules
         run: |
           echo "Scaricamento Plugin Creedengo (Java)..."
           mkdir -p sonar-plugins
-
-          #Usiamo il plugin specifico per Java dal repo ufficiale
+          # Scarichiamo il plugin Creedengo Java ufficiale
           wget -O sonar-plugins/creedengo-java.jar https://github.com/green-code-initiative/creedengo-java/releases/download/2.1.1/creedengo-java-plugin-2.1.1.jar
 
           echo "Avvio Container SonarQube..."
-          # Montiamo il plugin direttamente all'avvio
           docker run -d --name sonarqube \
             -p 9000:9000 \
             -v $(pwd)/sonar-plugins:/opt/sonarqube/extensions/plugins \
             sonarqube:community
 
-          echo "Attesa avvio SonarQube (circa 2-3 min)..."
-          # Attendiamo che le API di Sonar rispondano
+          echo "Attesa avvio SonarQube..."
           timeout 300s bash -c 'until curl -s http://localhost:9000/api/system/status | grep -q "\"status\":\"UP\""; do sleep 5; done'
           echo "SonarQube è pronto!"
 
-          echo "Configurazione Profilo Green..."
-          # 1. Autenticazione: cambio password default (obbligatorio)
+          echo "Configurazione..."
+          # 1. Cambio password OBBLIGATORIO (admin -> admin123)
           curl -u admin:admin -X POST "http://localhost:9000/api/users/change_password?login=admin&previousPassword=admin&password=admin123"
 
-          # 2. Attivazione Regole: Impostiamo il profilo "EcoCode Way" come default.
-          # (Il flag || true serve per non bloccare la pipeline se il nome del profilo fosse leggermente diverso nelle nuove versioni)
+          # 2. Attivazione Profilo Green come default
           curl -u admin:admin123 -X POST "http://localhost:9000/api/qualityprofiles/set_default?language=java&qualityProfile=EcoCode%20Way" || true
 
       - name: Run SonarQube Analysis
-        # Colleghiamo Maven al SonarQube locale temporaneo
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          SONAR_TOKEN: "admin123"
-          SONAR_HOST_URL: "http://localhost:9000"
         run: |
           mvn org.sonarsource.scanner.maven:sonar-maven-plugin:sonar \
+            -Dsonar.projectKey=ProgettoSustainability2 \
+            -Dsonar.projectName='ProgettoSustainability2' \
+            -Dsonar.host.url=http://localhost:9000 \
             -Dsonar.login=admin \
             -Dsonar.password=admin123 \
             -Dsonar.qualitygate.wait=true
@@ -98,7 +92,7 @@ jobs:
             justb4/jmeter \
             -n -t Scenario_A_Anonymous.jmx -l result_A.jtl
 
-      # 7. GreenIT Analysis (Build from source)
+      # 7. GreenIT Analysis
       - name: Build & Run GreenIT Analysis
         run: |
           git clone https://github.com/cnumr/GreenIT-Analysis-cli.git greenit-repo
