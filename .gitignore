@@ -38,3 +38,10 @@ build/
 .DS_Store
 
 .idea/sonarlint.xml
+
+### JMeter ###
+jmeter.log
+
+
+### Build ###
+out/
