@@ -1,4 +1,4 @@
-name: Green CI/CD Pipeline
+name: Green CI/CD Pipeline (All-in-One)
 
 on:
   push:
@@ -10,10 +10,14 @@ jobs:
   # --- JOB 1: INTEGRATION, TESTING & SUSTAINABILITY (CI) ---
   integration-and-sustainability:
     runs-on: ubuntu-latest
+    timeout-minutes: 20 # SonarQube è lento ad avviarsi
+
     steps:
       # 1. Setup Base
       - name: Checkout code
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Set up JDK 21
         uses: actions/setup-java@v4
@@ -22,28 +26,69 @@ jobs:
           distribution: "temurin"
           cache: "maven"
 
-      # 2. Build e Unit Test Classici
+      # 2. Build e Unit Test
       - name: Build with Maven
         run: mvn clean install -DskipTests
 
       - name: Run Unit Tests
         run: mvn test
 
-      # 3. Micro-benchmark sul codice (JMH)
+      # --- STEP 3: SONARQUBE + PLUGIN CREEDENGO (EcoCode) ---
+      - name: Setup & Start SonarQube with Creedengo Rules
+        run: |
+          echo "Scaricamento Plugin Creedengo (EcoCode)..."
+          mkdir -p sonar-plugins
+
+          # SCARICHIAMO IL PLUGIN UFFICIALE CHE CONTIENE LE REGOLE CREEDENGO
+          # Link alla release ufficiale Green Code Initiative
+          wget -O sonar-plugins/ecoCode.jar https://github.com/green-code-initiative/ecoCode/releases/download/3.1.1/ecoCode-sonar-plugin-3.1.1.jar
+
+          echo "Avvio Container SonarQube..."
+          # Montiamo il plugin direttamente all'avvio per non dover riavviare dopo
+          docker run -d --name sonarqube \
+            -p 9000:9000 \
+            -v $(pwd)/sonar-plugins:/opt/sonarqube/extensions/plugins \
+            sonarqube:community
+
+          echo "Attesa avvio SonarQube (circa 2-3 min)..."
+          # Attendiamo che SonarQube sia completamente operativo
+          timeout 300s bash -c 'until curl -s http://localhost:9000/api/system/status | grep -q "\"status\":\"UP\""; do sleep 5; done'
+          echo "SonarQube è pronto!"
+
+          echo "Configurazione Profilo Green..."
+          # 1. Autenticazione: cambio password default
+          curl -u admin:admin -X POST "http://localhost:9000/api/users/change_password?login=admin&previousPassword=admin&password=admin123"
+
+          # 2. Attivazione Regole: Impostiamo il profilo "EcoCode Way" (regole Creedengo) come default
+          curl -u admin:admin123 -X POST "http://localhost:9000/api/qualityprofiles/set_default?language=java&qualityProfile=EcoCode%20Way"
+
+      - name: Run SonarQube Analysis
+        # Colleghiamo Maven al SonarQube locale temporaneo
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SONAR_TOKEN: "admin123"
+          SONAR_HOST_URL: "http://localhost:9000"
+        run: |
+          mvn org.sonarsource.scanner.maven:sonar-maven-plugin:sonar \
+            -Dsonar.login=admin \
+            -Dsonar.password=admin123 \
+            -Dsonar.qualitygate.wait=true
+
+      # 4. Micro-benchmark (JMH)
       - name: Run JMH Benchmarks
         run: mvn exec:java -Dexec.mainClass=benchmark.JmhRunner -Dexec.classpathScope=test
 
-      # 4. Setup Ambiente di Integrazione
+      # 5. Setup Ambiente Docker (App Locale)
       - name: Set up Docker Compose
         run: docker compose up -d --build
 
       - name: Wait for Application
         run: |
-          echo "Waiting for app to start on localhost:8080..."
+          echo "Waiting for app on localhost:8080..."
           timeout 60s bash -c 'until curl -s http://localhost:8080 > /dev/null; do sleep 5; done'
-          echo "App is up and running!"
+          echo "App is up!"
 
-      # 5. Load Testing (JMeter)
+      # 6. Load Testing (JMeter)
       - name: Run JMeter Tests
         run: |
           chmod -R 777 jmeter || true
@@ -53,29 +98,24 @@ jobs:
             justb4/jmeter \
             -n -t Scenario_A_Anonymous.jmx -l result_A.jtl
 
-      # 6. GreenIT Analysis (Include EcoIndex Score nel report HTML)
+      # 7. GreenIT Analysis (Build from source)
       - name: Build & Run GreenIT Analysis
         run: |
-          # Clone e build da sorgente (più sicuro)
           git clone https://github.com/cnumr/GreenIT-Analysis-cli.git greenit-repo
           cd greenit-repo
           docker build -t local-greenit-analysis .
           cd ..
 
-          # Creazione file di configurazione
           echo "- url: http://localhost:8080" > urls_to_scan.yaml
-
-          # Preparazione cartella output
           mkdir -p reports/greenit
           chmod 777 reports/greenit
 
-          # Esecuzione analisi
           docker run --rm --network host \
             -v $(pwd):/scan \
             local-greenit-analysis \
             greenit analyse /scan/urls_to_scan.yaml /scan/reports/greenit/report.html
 
-      # 7. Salvataggio Report
+      # 8. Salvataggio Report
       - name: Upload Test Reports
         uses: actions/upload-artifact@v4
         if: always()
@@ -85,7 +125,7 @@ jobs:
             jmeter/result_A.jtl
             reports/
 
-      # 8. Pulizia
+      # 9. Pulizia
       - name: Stop Docker Compose
         if: always()
         run: docker compose down
@@ -94,7 +134,6 @@ jobs:
   build_and_push_docker:
     needs: integration-and-sustainability
     runs-on: ubuntu-latest
-    # Deploy solo su merge su main/master
     if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'
 
     steps:
