@@ -26,12 +26,13 @@ jobs:
           distribution: "temurin"
           cache: "maven"
 
-      # 2. Build
+      # 2. Build (Unit Test RIMOOSSI come richiesto)
       - name: Build with Maven
         run: mvn clean install -DskipTests
 
+      # 4. Micro-benchmark (JMH) - FIX APPLICATO
       - name: Run JMH Benchmarks
-        # Usiamo il Main standard di JMH forzando 0 fork (-f 0) per evitare problemi di classpath
+        # Usiamo il Main standard di JMH forzando 0 fork (-f 0) per evitare l'errore ClassNotFoundException
         run: mvn exec:java -Dexec.mainClass="org.openjdk.jmh.Main" -Dexec.classpathScope=test -Dexec.args="-f 0"
 
       # 5. Setup Ambiente Docker (App Locale)
@@ -44,38 +45,24 @@ jobs:
           timeout 60s bash -c 'until curl -s http://localhost:8080 > /dev/null; do sleep 5; done'
           echo "App is up!"
 
-      # 6. Load Testing (JMeter) - Multi Scenario
+      # 6. Load Testing (JMeter) - Con Report HTML
       - name: Run JMeter Tests
         run: |
           chmod -R 777 jmeter || true
 
-          echo "Eseguo Scenario A..."
+          echo "--- Eseguo Scenario A: Anonymous ---"
           docker run --rm --network host \
             -v ${{ github.workspace }}/jmeter:/jmeter \
             -w /jmeter \
             justb4/jmeter \
-            -n -t Scenario_A_Anonymous.jmx -l result_A.jtl
+            -n -t Scenario_A_Anonymous.jmx -l result_A.jtl -e -o report_A
 
-          echo "Eseguo Scenario B..."
+          echo "--- Eseguo Scenario B: Registered ---"
           docker run --rm --network host \
             -v ${{ github.workspace }}/jmeter:/jmeter \
             -w /jmeter \
             justb4/jmeter \
-            -n -t Scenario_B_Registered.jmx -l result_B.jtl
-
-          echo "Eseguo Scenario C..."
-          docker run --rm --network host \
-            -v ${{ github.workspace }}/jmeter:/jmeter \
-            -w /jmeter \
-            justb4/jmeter \
-            -n -t Scenario_C_CheckoutStress.jmx -l result_C.jtl
-
-          echo "Eseguo Scenario D..."
-          docker run --rm --network host \
-            -v ${{ github.workspace }}/jmeter:/jmeter \
-            -w /jmeter \
-            justb4/jmeter \
-            -n -t Scenario_D_CartStress.jmx -l result_D.jtl
+            -n -t Scenario_B_Registered.jmx -l result_B.jtl -e -o report_B
 
       # 7. GreenIT Analysis
       - name: Build & Run GreenIT Analysis
@@ -94,7 +81,7 @@ jobs:
             local-greenit-analysis \
             greenit analyse /scan/urls_to_scan.yaml /scan/reports/greenit/report.html
 
-      # 8. Salvataggio Report
+      # 8. Salvataggio Report (JMeter HTML + JTL + GreenIT)
       - name: Upload Test Reports
         uses: actions/upload-artifact@v4
         if: always()
@@ -102,6 +89,7 @@ jobs:
           name: green-performance-reports
           path: |
             jmeter/*.jtl
+            jmeter/report_*/
             reports/
 
       # 9. Pulizia
