@@ -33,7 +33,7 @@ jobs:
       - name: Run Unit Tests
         run: mvn test
 
-      # --- STEP 3: SONARQUBE 9.9 LTS + CREEDENGO (TIMING FIX) ---
+      # --- STEP 3: SONARQUBE 9.9 LTS - CREEDENGO (TIMING FIX) ---
       - name: Setup & Start SonarQube 9.9 LTS with Creedengo
         run: |
           echo "Scaricamento Plugin Creedengo (Java)..."
@@ -58,14 +58,14 @@ jobs:
           curl -u admin:admin -X POST "http://localhost:9000/api/users/change_password" \
             -d "login=admin" \
             -d "previousPassword=admin" \
-            -d "password=Admin12345678+"
+            -d "password=Admin12345678-"
 
           echo "Debug Profili Disponibili:"
-          curl -u 'admin:Admin12345678+' "http://localhost:9000/api/qualityprofiles/search?language=java"
+          curl -u 'admin:Admin12345678-' "http://localhost:9000/api/qualityprofiles/search?language=java"
           echo ""
 
           echo "Attivazione Profilo Green..."
-          curl -u 'admin:Admin12345678+' -X POST "http://localhost:9000/api/qualityprofiles/set_default?language=java&qualityProfile=EcoCode%20Way"
+          curl -u 'admin:Admin12345678-' -X POST "http://localhost:9000/api/qualityprofiles/set_default?language=java&qualityProfile=EcoCode%20Way"
 
       - name: Run SonarQube Analysis
         run: |
@@ -75,7 +75,7 @@ jobs:
             -Dsonar.projectName='ProgettoSustainability2' \
             -Dsonar.host.url=http://localhost:9000 \
             -Dsonar.login=admin \
-            -Dsonar.password='Admin12345678+' \
+            -Dsonar.password='Admin12345678-' \
             -Dsonar.qualitygate.wait=true
 
       # 4. Micro-benchmark (JMH)
