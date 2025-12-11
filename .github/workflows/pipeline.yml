@@ -33,46 +33,59 @@ jobs:
       - name: Run Unit Tests
         run: mvn test
 
-      # --- STEP 3: SONARQUBE 9.9 LTS + CREEDENGO (PERMISSION FIX) ---
+      # --- STEP 3: SONARQUBE 9.9 LTS + CREEDENGO (DOCKER CP FIX) ---
       - name: Setup & Start SonarQube 9.9 LTS with Creedengo
         run: |
-          echo "Scaricamento Plugin Creedengo (Java)..."
-          mkdir -p sonar-plugins
-          wget -O sonar-plugins/creedengo-java.jar https://github.com/green-code-initiative/creedengo-java/releases/download/2.1.1/creedengo-java-plugin-2.1.1.jar
+          echo "📥 Scaricamento Plugin Creedengo (Java)..."
+          # Scarichiamo il plugin in locale
+          wget -O creedengo.jar https://github.com/green-code-initiative/creedengo-java/releases/download/2.1.1/creedengo-java-plugin-2.1.1.jar
 
-          echo "Impostazione permessi plugin..."
-          chmod -R 777 sonar-plugins
+          echo "🐳 Avvio SonarQube 9.9 LTS (Primo avvio)..."
+          # Avviamo senza montare volumi per evitare problemi di permessi
+          docker run -d --name sonarqube -p 9000:9000 sonarqube:9.9-community
 
-          echo "Avvio SonarQube 9.9 LTS..."
-          docker run -d --name sonarqube \
-            -p 9000:9000 \
-            -v $(pwd)/sonar-plugins:/opt/sonarqube/extensions/plugins \
-            sonarqube:9.9-community
-
-          echo "Attesa avvio SonarQube..."
+          echo "⏳ Attesa che SonarQube sia inizializzato..."
+          # Aspettiamo che si alzi la prima volta
           timeout 300s bash -c 'until curl -s http://localhost:9000/api/system/status | grep -q "UP"; do sleep 5; done'
 
-          echo "Attesa caricamento plugin (40s)..."
-          sleep 60
+          echo "🚚 Installazione Plugin (docker cp)..."
+          # Copiamo il file dentro il container in modo sicuro
+          docker cp creedengo.jar sonarqube:/opt/sonarqube/extensions/plugins/creedengo.jar
 
-          echo "SonarQube è pronto!"
+          # Diamo i permessi corretti dentro il container (utente sonar = uid 1000)
+          docker exec -u 0 sonarqube chown 1000:1000 /opt/sonarqube/extensions/plugins/creedengo.jar
 
-          echo "Configurazione Credentials..."
+          echo "🔄 Riavvio SonarQube per caricare il plugin..."
+          docker restart sonarqube
+
+          echo "⏳ Attesa riavvio..."
+          timeout 300s bash -c 'until curl -s http://localhost:9000/api/system/status | grep -q "UP"; do sleep 5; done'
+
+          echo "💤 Pausa di sicurezza (30s)..."
+          sleep 30
+
+          echo "✅ SonarQube Riavviato!"
+
+          echo "⚙️ Configurazione Credentials..."
           curl -f -u admin:admin -X POST "http://localhost:9000/api/users/change_password" \
             -d "login=admin" \
             -d "previousPassword=admin" \
             -d "password=Admin12345678-"
 
-          echo "DEBUG: Profili Java disponibili:"
+          echo "🔍 DEBUG: Profili Java disponibili:"
           curl -s -u admin:Admin12345678- "http://localhost:9000/api/qualityprofiles/search?language=java" | grep -o '"name":"[^"]*"'
           echo ""
 
-          echo "Attivazione Profilo Green..."
-          curl -f -u admin:Admin12345678- -X POST "http://localhost:9000/api/qualityprofiles/set_default?language=java&qualityProfile=EcoCode%20Way" || echo "⚠️ Profilo Green non trovato, verrà usato 'Sonar way'"
+          echo "✅ Attivazione Profilo Green..."
+          # Proviamo entrambi i nomi possibili per sicurezza
+          curl -f -u admin:Admin12345678- -X POST "http://localhost:9000/api/qualityprofiles/set_default?language=java&qualityProfile=EcoCode%20Way" || \
+          curl -f -u admin:Admin12345678- -X POST "http://localhost:9000/api/qualityprofiles/set_default?language=java&qualityProfile=Creedengo%20Way" || \
+          echo "⚠️ Impossibile attivare il profilo Green (verificare log debug sopra)"
 
       - name: Run SonarQube Analysis
         run: |
           unset SONAR_TOKEN
+          # Proviamo con EcoCode Way, se fallisce usiamo fallback standard
           mvn org.sonarsource.scanner.maven:sonar-maven-plugin:sonar \
             -Dsonar.projectKey=ProgettoSustainability2 \
             -Dsonar.projectName='ProgettoSustainability2' \
