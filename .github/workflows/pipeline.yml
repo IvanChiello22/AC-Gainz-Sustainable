@@ -33,7 +33,7 @@ jobs:
       - name: Run Unit Tests
         run: mvn test
 
-      # --- STEP 3: SONARQUBE 9.9 LTS - CREEDENGO (TIMING FIX) ---
+      # --- STEP 3: SONARQUBE 9.9 LTS + CREEDENGO ---
       - name: Setup & Start SonarQube 9.9 LTS with Creedengo
         run: |
           echo "Scaricamento Plugin Creedengo (Java)..."
@@ -49,23 +49,22 @@ jobs:
           echo "Attesa avvio SonarQube..."
           timeout 300s bash -c 'until curl -s http://localhost:9000/api/system/status | grep -q "UP"; do sleep 5; done'
 
-          echo "Attesa stabilizzazione plugin (40s)..."
-          sleep 40
+          echo "Attesa caricamento plugin (30s)..."
+          sleep 60
 
           echo "SonarQube è pronto!"
 
-          echo "Configurazione..."
-          curl -u admin:admin -X POST "http://localhost:9000/api/users/change_password" \
+          echo "Configurazione Credentials..."
+          curl -f -u admin:admin -X POST "http://localhost:9000/api/users/change_password" \
             -d "login=admin" \
             -d "previousPassword=admin" \
             -d "password=Admin12345678-"
 
-          echo "Debug Profili Disponibili:"
-          curl -u 'admin:Admin12345678-' "http://localhost:9000/api/qualityprofiles/search?language=java"
+          echo "DEBUG: Lista Profili Installati:"
+          # Questo comando stamperà nel log tutti i profili che Sonar vede. 
+          # Ci serve per confermare se si chiama "EcoCode Way" o "Creedengo Way".
+          curl -u admin:Admin12345678- "http://localhost:9000/api/qualityprofiles/search?language=java"
           echo ""
-
-          echo "Attivazione Profilo Green..."
-          curl -u 'admin:Admin12345678-' -X POST "http://localhost:9000/api/qualityprofiles/set_default?language=java&qualityProfile=EcoCode%20Way"
 
       - name: Run SonarQube Analysis
         run: |
@@ -76,6 +75,7 @@ jobs:
             -Dsonar.host.url=http://localhost:9000 \
             -Dsonar.login=admin \
             -Dsonar.password='Admin12345678-' \
+            -Dsonar.profile.java="EcoCode Way" \
             -Dsonar.qualitygate.wait=true
 
       # 4. Micro-benchmark (JMH)
