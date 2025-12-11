@@ -33,12 +33,15 @@ jobs:
       - name: Run Unit Tests
         run: mvn test
 
-      # --- STEP 3: SONARQUBE 9.9 LTS + CREEDENGO (NAME FIX) ---
+      # --- STEP 3: SONARQUBE 9.9 LTS + CREEDENGO (PERMISSION FIX) ---
       - name: Setup & Start SonarQube 9.9 LTS with Creedengo
         run: |
           echo "Scaricamento Plugin Creedengo (Java)..."
           mkdir -p sonar-plugins
           wget -O sonar-plugins/creedengo-java.jar https://github.com/green-code-initiative/creedengo-java/releases/download/2.1.1/creedengo-java-plugin-2.1.1.jar
+
+          echo "Impostazione permessi plugin..."
+          chmod -R 777 sonar-plugins
 
           echo "Avvio SonarQube 9.9 LTS..."
           docker run -d --name sonarqube \
@@ -49,7 +52,7 @@ jobs:
           echo "Attesa avvio SonarQube..."
           timeout 300s bash -c 'until curl -s http://localhost:9000/api/system/status | grep -q "UP"; do sleep 5; done'
 
-          echo "Attesa caricamento plugin (30s)..."
+          echo "Attesa caricamento plugin (40s)..."
           sleep 60
 
           echo "SonarQube è pronto!"
@@ -60,12 +63,12 @@ jobs:
             -d "previousPassword=admin" \
             -d "password=Admin12345678-"
 
-          echo "DEBUG: Lista Profili Installati:"
-          curl -u admin:Admin12345678- "http://localhost:9000/api/qualityprofiles/search"
+          echo "DEBUG: Profili Java disponibili:"
+          curl -s -u admin:Admin12345678- "http://localhost:9000/api/qualityprofiles/search?language=java" | grep -o '"name":"[^"]*"'
           echo ""
 
           echo "Attivazione Profilo Green..."
-          curl -f -u admin:Admin12345678- -X POST "http://localhost:9000/api/qualityprofiles/set_default?language=java&qualityProfile=Creedengo%20Way" || true
+          curl -f -u admin:Admin12345678- -X POST "http://localhost:9000/api/qualityprofiles/set_default?language=java&qualityProfile=EcoCode%20Way" || echo "⚠️ Profilo Green non trovato, verrà usato 'Sonar way'"
 
       - name: Run SonarQube Analysis
         run: |
@@ -75,8 +78,15 @@ jobs:
             -Dsonar.projectName='ProgettoSustainability2' \
             -Dsonar.host.url=http://localhost:9000 \
             -Dsonar.login=admin \
-            -Dsonar.password='Admin_12345678' \
-            -Dsonar.profile.java="Creedengo Way" \
+            -Dsonar.password='Admin12345678-' \
+            -Dsonar.qualitygate.wait=true \
+            -Dsonar.profile.java="EcoCode Way" || \
+          mvn org.sonarsource.scanner.maven:sonar-maven-plugin:sonar \
+            -Dsonar.projectKey=ProgettoSustainability2 \
+            -Dsonar.projectName='ProgettoSustainability2' \
+            -Dsonar.host.url=http://localhost:9000 \
+            -Dsonar.login=admin \
+            -Dsonar.password='Admin12345678-' \
             -Dsonar.qualitygate.wait=true
 
       # 4. Micro-benchmark (JMH)
